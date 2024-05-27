@@ -86,36 +86,37 @@ void ModGroupsTreeWidget::dragLeaveEvent(QDragLeaveEvent *event)
 
 void ModGroupsTreeWidget::dragMoveEvent(QDragMoveEvent *event)
 {
-    for (int i = 0; i < this->topLevelItemCount(); i += 1) {
-        QTreeWidgetItem *item = this->topLevelItem(i);
+    QTreeWidgetItem *item = this->itemAt(event->position().toPoint());
+    if (item != nullptr) {
+        while (item->parent() != nullptr) {
+            item = item->parent();
+        }
+    }
 
-        ModGroupsTreeWidgetItem *castedItem = dynamic_cast<ModGroupsTreeWidgetItem *>(item);
-        if (castedItem == nullptr || !castedItem->isFolder()) {
+    bool hasSelectedItem = false;
+    for (int i = 0; i < this->topLevelItemCount(); i += 1) {
+        QTreeWidgetItem *topLevelItem = this->topLevelItem(i);
+
+        ModGroupsTreeWidgetItem *castedtopLevelItem = dynamic_cast<ModGroupsTreeWidgetItem *>(topLevelItem);
+        if (castedtopLevelItem == nullptr || !castedtopLevelItem->isFolder()) {
             continue;
         }
 
-        item->setSelected(false);
+        if (topLevelItem == item) {
+            hasSelectedItem = true;
+            topLevelItem->setSelected(true);
+            continue;
+        }
+
+        topLevelItem->setSelected(false);
     }
 
-    QTreeWidgetItem *item = this->itemAt(event->position().toPoint());
-    if (item == nullptr) {
+    if (!hasSelectedItem) {
         event->ignore();
         return;
     }
 
-    while (item->parent() != nullptr) {
-        item = item->parent();
-    }
-
-    ModGroupsTreeWidgetItem *castedItem = dynamic_cast<ModGroupsTreeWidgetItem *>(item);
-    if (castedItem == nullptr || !castedItem->isFolder()) {
-        event->ignore();
-        return;
-    }
-
-    item->setSelected(true);
-
-    event->setDropAction(Qt::CopyAction);
+    event->setDropAction(event->dropAction());
     event->accept();
 }
 
