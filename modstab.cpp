@@ -1,15 +1,12 @@
 #include "modstab.h"
 #include "qheaderview.h"
 
-ModsTab::ModsTab(QMainWindow *mainWindow, Settings *settings)
-    : QObject{mainWindow}
+ModsTab::ModsTab(QWidget *modsTab, Settings *settings)
+    : QObject{modsTab}
 {
     this->settings = settings;
-    this->mainWindow = mainWindow;
-
-    QWidget *modsTab = this->mainWindow->findChild<QWidget *>("modsTab");
-    this->availableModsTreeWidget = modsTab->findChild<CustomTreeWidget *>("availableModsTreeWidget");
-    this->modGroupsTreeWidget = modsTab->findChild<CustomTreeWidget *>("modGroupsTreeWidget");
+    this->availableModsTreeWidget = modsTab->findChild<QTreeWidget *>("availableModsTreeWidget");
+    this->modGroupsTreeWidget = modsTab->findChild<ModGroupsTreeWidget *>("modGroupsTreeWidget");
 
     init();
 }
@@ -19,23 +16,84 @@ void ModsTab::init()
     this->availableModsTreeWidget->setHeaderHidden(true);
     this->availableModsTreeWidget->header()->setStretchLastSection(false);
     this->availableModsTreeWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    this->availableModsTreeWidget->setType(CustomTreeWidget::Type::Sender);
+    this->availableModsTreeWidget->setAcceptDrops(false);
+    this->availableModsTreeWidget->setDragEnabled(true);
 
-    this->modGroupsTreeWidget->setHeaderHidden(true);
-    this->modGroupsTreeWidget->header()->setStretchLastSection(false);
-    this->modGroupsTreeWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    this->modGroupsTreeWidget->setType(CustomTreeWidget::Receiver);
+    this->modGroupsTreeWidget->setAcceptDrops(true);
+    this->modGroupsTreeWidget->setDragEnabled(true);
     this->modGroupsTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(this->modGroupsTreeWidget, &CustomTreeWidget::dragEnterEventSignal, this, &ModsTab::modGroupsTreeWidgetDragEnterEventSignal);
-    connect(this->modGroupsTreeWidget, &CustomTreeWidget::dragMoveEventSignal, this, &ModsTab::modGroupsTreeWidgetDragMoveEventSignal);
-    connect(this->modGroupsTreeWidget, &CustomTreeWidget::dropEventSignal, this, &ModsTab::modGroupsTreeWidgetDropEventSignal);
-    connect(this->modGroupsTreeWidget, &CustomTreeWidget::customContextMenuRequested, this, &ModsTab::modGroupsTreeWidgetCustomContextMenuRequested);
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::dragEnterSignal, this, &ModsTab::modGroupsDragEnterSignalHandler);
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::dragLeaveSignal, this, &ModsTab::modGroupsDragLeaveSignalHandler);
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::dragMoveSignal, this, &ModsTab::modGroupsDragMoveSignalHandler);
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::dropSignal, this, &ModsTab::modGroupsDropSignalHandler);
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::customContextMenuRequested, this, &ModsTab::modGroupsCustomContextMenuRequestedHandler);
 }
 
-void ModsTab::modGroupsTreeWidgetDragEnterEventSignal(QDragEnterEvent *event)
+bool ModsTab::hasItemInTreeWidget(QTreeWidget *treeWidget, QString text, QVariant data, int column)
 {
-    CustomTreeWidget *sourceTreeWidget = qobject_cast<CustomTreeWidget *>(event->source());
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        if (QString::compare((*it)->text(column), text) == 0 && (*it)->data(column, Qt::UserRole) == data) {
+            return true;
+        }
+
+        ++it;
+    }
+
+    return false;
+}
+
+bool ModsTab::hasItemInTreeWidgetItem(QTreeWidgetItem *item, QString text, QVariant data, int column)
+{
+    for (int i = 0; i < item->childCount(); i += 1) {
+        QTreeWidgetItem *childItem = item->child(i);
+        if (childItem == nullptr) {
+            continue;
+        }
+
+        if (QString::compare(childItem->text(0), text) != 0) {
+            continue;
+        }
+
+        if (childItem->data(0, Qt::UserRole) == data) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void ModsTab::removeTreeWidgetItem(QTreeWidgetItem *item)
+{
+    QTreeWidgetItem *parent = item->parent();
+    if (parent == nullptr) {
+        QTreeWidget *treeWidget = item->treeWidget();
+        int index = treeWidget->indexOfTopLevelItem(item);
+        if (index == -1) {
+            return;
+        }
+
+        QTreeWidgetItem *topLevelItem = treeWidget->takeTopLevelItem(index);
+        if (topLevelItem == nullptr) {
+            return;
+        }
+        Q_ASSERT(topLevelItem == item);
+
+        delete topLevelItem;
+        return;
+    }
+
+    Q_ASSERT(parent->indexOfChild(item) >= 0);
+    parent->removeChild(item);
+    delete item;
+
+    return;
+}
+
+void ModsTab::modGroupsDragEnterSignalHandler(QDragEnterEvent *event)
+{
+    QTreeWidget *sourceTreeWidget = qobject_cast<QTreeWidget *>(event->source());
     if (sourceTreeWidget == nullptr || (sourceTreeWidget != this->availableModsTreeWidget && sourceTreeWidget != this->modGroupsTreeWidget)) {
         return;
     }
@@ -43,30 +101,64 @@ void ModsTab::modGroupsTreeWidgetDragEnterEventSignal(QDragEnterEvent *event)
     event->acceptProposedAction();
 }
 
-void ModsTab::modGroupsTreeWidgetDragMoveEventSignal(QDragMoveEvent *event)
+void ModsTab::modGroupsDragLeaveSignalHandler(QDragLeaveEvent *event)
+{
+    event->ignore();
+}
+
+void ModsTab::modGroupsDragMoveSignalHandler(QDragMoveEvent *event)
 {
     this->modGroupsTreeWidget->clearSelection();
 
     QTreeWidgetItem *item = this->modGroupsTreeWidget->itemAt(event->position().toPoint());
     if (item == nullptr) {
+        event->ignore();
         return;
     }
 
+    while (item->parent() != nullptr) {
+        item = item->parent();
+    }
+
     if (!item->data(0, Qt::UserRole).isNull()) {
+        event->ignore();
         return;
     }
 
     item->setSelected(true);
+    event->acceptProposedAction();
 }
 
-void ModsTab::modGroupsTreeWidgetDropEventSignal(QDropEvent *event)
+void ModsTab::modGroupsDropSignalHandler(QDropEvent *event)
 {
-    CustomTreeWidget *sourceTreeWidget = qobject_cast<CustomTreeWidget *>(event->source());
+    QTreeWidget *sourceTreeWidget = qobject_cast<QTreeWidget *>(event->source());
     if (sourceTreeWidget == nullptr || (sourceTreeWidget != this->availableModsTreeWidget && sourceTreeWidget != this->modGroupsTreeWidget)) {
         return;
     }
 
+    QTreeWidgetItem *parentItem = this->modGroupsTreeWidget->itemAt(event->position().toPoint());
+    if (parentItem == nullptr) {
+        return;
+    }
+
+    while (parentItem->parent() != nullptr) {
+        parentItem = parentItem->parent();
+    }
+
+    ModGroupsTreeWidgetItem *parentItemCasted = dynamic_cast<ModGroupsTreeWidgetItem *>(parentItem);
+    if (parentItemCasted == nullptr) {
+        return;
+    }
+
+    if (!parentItemCasted->isFolder()) {
+        return;
+    }
+
     QTreeWidgetItem *currentItem = sourceTreeWidget->currentItem();
+    if (currentItem->parent() == parentItem) {
+        return;
+    }
+
     QVariant data = currentItem->data(0, Qt::UserRole);
     if (data.isNull() || !data.canConvert<QString>()) {
         return;
@@ -75,52 +167,23 @@ void ModsTab::modGroupsTreeWidgetDropEventSignal(QDropEvent *event)
     QString path = data.toString();
     QString name = Util::getFilename(path);
 
-    QTreeWidgetItem *parentItem = this->modGroupsTreeWidget->itemAt(event->position().toPoint());
-    QTreeWidgetItem *item;
-    if (parentItem == nullptr) {
-        item = new QTreeWidgetItem(this->modGroupsTreeWidget);
-    } else {
-        while (parentItem->parent() != nullptr) {
-            parentItem = parentItem->parent();
-        }
+    parentItem->setExpanded(true);
 
-        if (!parentItem->data(0, Qt::UserRole).isNull()) {
-            return;
-        }
-
-        item = new QTreeWidgetItem(parentItem);
-        parentItem->setExpanded(true);
+    if (hasItemInTreeWidgetItem(parentItem, name, data, 0)) {
+        return;
     }
 
-    item->setText(0, name);
-    item->setData(0, Qt::UserRole, data);
-    item->setCheckState(0, Qt::Unchecked);
-
-    this->modGroupsTreeWidget->sortItems(0, Qt::AscendingOrder);
+    ModGroupsTreeWidgetItem *newItem = new ModGroupsTreeWidgetItem(name, data, false);
+    parentItem->addChild(newItem);
 
     if (sourceTreeWidget == this->modGroupsTreeWidget) {
-        QTreeWidgetItem *currentItemParent = currentItem->parent();
-        if (currentItemParent == nullptr) {
-            int index = this->modGroupsTreeWidget->indexOfTopLevelItem(currentItem);
-            if (index == -1) {
-                return;
-            }
-
-            QTreeWidgetItem *item = this->modGroupsTreeWidget->takeTopLevelItem(index);
-            if (item == nullptr) {
-                return;
-            }
-
-            delete item;
-            return;
-        }
-
-        currentItemParent->removeChild(currentItem);
-        delete currentItem;
+        removeTreeWidgetItem(currentItem);
     }
+
+    this->modGroupsTreeWidget->sortItems(0, Qt::AscendingOrder);
 }
 
-void ModsTab::modGroupsTreeWidgetCustomContextMenuRequested(QPoint pos)
+void ModsTab::modGroupsCustomContextMenuRequestedHandler(QPoint pos)
 {
     QMenu *menu = new QMenu(this->modGroupsTreeWidget);
 
@@ -140,17 +203,14 @@ void ModsTab::modGroupsTreeAddFolderActionTriggered(bool checked)
         return;
     }
 
-    if (this->modGroupsTreeWidget->hasItem(name, QVariant(), 0)) {
+    if (hasItemInTreeWidget(this->modGroupsTreeWidget, name, QVariant(), 0)) {
         QMessageBox messageBox(QMessageBox::Warning, "Warning", "Folder already exists.", QMessageBox::NoButton, this->modGroupsTreeWidget);
         messageBox.exec();
         return;
     }
 
-    QTreeWidgetItem *folderItem = new QTreeWidgetItem(this->modGroupsTreeWidget);
-    folderItem->setIcon(0, this->mainWindow->style()->standardIcon(QStyle::SP_DirHomeIcon));
-    folderItem->setText(0, name);
-    folderItem->setToolTip(0, name);
-    folderItem->setCheckState(0, Qt::Unchecked);
+    ModGroupsTreeWidgetItem *folderItem = new ModGroupsTreeWidgetItem(name, QVariant(), true);
+    this->modGroupsTreeWidget->addTopLevelItem(folderItem);
 }
 
 void ModsTab::loadAvailableMods()
@@ -171,8 +231,9 @@ void ModsTab::loadAvailableMods()
 
     for (auto &folder : modFolders) {
         QTreeWidgetItem *folderItem = new QTreeWidgetItem(this->availableModsTreeWidget);
-        folderItem->setIcon(0, this->mainWindow->style()->standardIcon(QStyle::SP_DirHomeIcon));
+        folderItem->setIcon(0, QApplication::style()->standardIcon(QStyle::SP_DirHomeIcon));
         folderItem->setFlags(folderItem->flags() & ~Qt::ItemIsDragEnabled);
+        folderItem->setData(0, Qt::UserRole, folder);
 
         QString name = Util::getFilename(folder);
         folderItem->setText(0, name);

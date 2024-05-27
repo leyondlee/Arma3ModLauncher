@@ -9,10 +9,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->tabWidget = ui->tabWidget;
     this->settings = new Settings(this);
-    this->modsTab = new ModsTab(this, this->settings);
-    this->optionsTab = new OptionsTab(this, this->settings);
+    this->modsTab = new ModsTab(ui->modsTab, this->settings);
+    this->optionsTab = new OptionsTab(ui->optionsTab, this->settings);
 
-    connect(this->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabWidgetCurrentChanged);
+    connect(this->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabWidgetCurrentChangedHandler);
 
     this->setWindowTitle(QApplication::applicationName());
     this->tabWidget->setCurrentIndex(0);
@@ -24,7 +24,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::tabWidgetCurrentChanged(int index)
+void MainWindow::tabWidgetCurrentChangedHandler(int index)
 {
     if (index == 1) {
         optionsTab->tabChanged();

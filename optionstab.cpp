@@ -1,12 +1,9 @@
 #include "optionstab.h"
 
-OptionsTab::OptionsTab(QMainWindow *mainWindow, Settings *settings)
-    : QObject{mainWindow}
+OptionsTab::OptionsTab(QWidget *optionsTab, Settings *settings)
+    : QObject{optionsTab}
 {
     this->settings = settings;
-    this->mainWindow = mainWindow;
-
-    QWidget *optionsTab = mainWindow->findChild<QWidget *>("optionsTab");
     this->arma3ExecutableLineEdit = optionsTab->findChild<QLineEdit *>("arma3ExecutableLineEdit");
     this->modFoldersListWidget = optionsTab->findChild<QListWidget *>("modFoldersListWidget");
 

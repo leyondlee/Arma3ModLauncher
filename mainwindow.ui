@@ -42,7 +42,7 @@
       <property name="title">
        <string>Available Mods</string>
       </property>
-      <widget class="CustomTreeWidget" name="availableModsTreeWidget">
+      <widget class="QTreeWidget" name="availableModsTreeWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -53,6 +53,9 @@
        </property>
        <property name="dragEnabled">
         <bool>false</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::NoDragDrop</enum>
        </property>
        <column>
         <property name="text">
@@ -73,7 +76,7 @@
       <property name="title">
        <string>Mod Groups</string>
       </property>
-      <widget class="CustomTreeWidget" name="modGroupsTreeWidget">
+      <widget class="ModGroupsTreeWidget" name="modGroupsTreeWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -215,9 +218,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CustomTreeWidget</class>
+   <class>ModGroupsTreeWidget</class>
    <extends>QTreeWidget</extends>
-   <header>customtreewidget.h</header>
+   <header>modgroupstreewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

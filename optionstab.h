@@ -18,14 +18,12 @@ class OptionsTab : public QObject
     Q_OBJECT
 
 public:
-    explicit OptionsTab(QMainWindow *, Settings *);
+    explicit OptionsTab(QWidget *, Settings *);
 
     void tabChanged();
 
 private:
     Settings *settings;
-
-    QMainWindow *mainWindow;
     QLineEdit *arma3ExecutableLineEdit;
     QListWidget *modFoldersListWidget;
 

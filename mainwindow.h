@@ -32,6 +32,6 @@ private:
     ModsTab *modsTab;
     OptionsTab *optionsTab;
 
-    void tabWidgetCurrentChanged(int);
+    void tabWidgetCurrentChangedHandler(int);
 };
 #endif // MAINWINDOW_H

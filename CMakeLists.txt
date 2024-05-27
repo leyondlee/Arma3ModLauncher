@@ -27,7 +27,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         util.h util.cpp
         settings.h settings.cpp
         modstab.h modstab.cpp
-        customtreewidget.h customtreewidget.cpp
+
+        modgroupstreewidgetitem.h modgroupstreewidgetitem.cpp
+        modgroupstreewidget.h modgroupstreewidget.cpp
+
+
+
 
     )
 # Define target properties for Android with Qt 6 as:

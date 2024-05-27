@@ -8,31 +8,37 @@
 #include <QMenu>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QApplication>
+#include <QMimeData>
 
 #include "util.h"
 #include "settings.h"
-#include "customtreewidget.h"
+#include "modgroupstreewidget.h"
+#include "modgroupstreewidgetitem.h"
 
 class ModsTab : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ModsTab(QMainWindow *, Settings *);
+    explicit ModsTab(QWidget *, Settings *);
     void loadAvailableMods();
 
 private:
     Settings *settings;
-
-    QMainWindow *mainWindow;
-    CustomTreeWidget *availableModsTreeWidget;
-    CustomTreeWidget *modGroupsTreeWidget;
+    QTreeWidget *availableModsTreeWidget;
+    ModGroupsTreeWidget *modGroupsTreeWidget;
 
     void init();
-    void modGroupsTreeWidgetDragEnterEventSignal(QDragEnterEvent *);
-    void modGroupsTreeWidgetDragMoveEventSignal(QDragMoveEvent *);
-    void modGroupsTreeWidgetDropEventSignal(QDropEvent *);
-    void modGroupsTreeWidgetCustomContextMenuRequested(QPoint);
+    bool hasItemInTreeWidget(QTreeWidget *treeWidget, QString text, QVariant data, int column);
+    bool hasItemInTreeWidgetItem(QTreeWidgetItem *item, QString text, QVariant data, int column);
+    void removeTreeWidgetItem(QTreeWidgetItem *);
+
+    void modGroupsDragEnterSignalHandler(QDragEnterEvent *);
+    void modGroupsDragLeaveSignalHandler(QDragLeaveEvent *);
+    void modGroupsDragMoveSignalHandler(QDragMoveEvent *);
+    void modGroupsDropSignalHandler(QDropEvent *);
+    void modGroupsCustomContextMenuRequestedHandler(QPoint);
     void modGroupsTreeAddFolderActionTriggered(bool);
 
 signals:
