@@ -5,6 +5,7 @@ ModsTabTreeWidget::ModsTabTreeWidget(Qt::DropAction dropAction,QWidget *parent)
 {
     this->dropAction = dropAction;
 
+    this->setSelectionMode(QAbstractItemView::ExtendedSelection);
     this->setHeaderHidden(true);
     this->header()->setStretchLastSection(false);
     this->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -47,13 +48,37 @@ void ModsTabTreeWidget::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    QVariant data = item->data(0, Qt::UserRole);
-    if (data.isNull() || !data.canConvert<QString>()) {
-        return;
+    ModsTabDragDropData dragDropData;
+
+    QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
+    for (auto item : selectedItems) {
+        QTreeWidgetItem *parentItem = item->parent();
+        if (parentItem == nullptr) {
+            item->setSelected(false);
+            continue;
+        }
+
+        while (parentItem->parent() != nullptr) {
+            parentItem = parentItem->parent();
+        };
+
+        QVariant key = parentItem->data(0, Qt::UserRole);
+        if (key.isNull() || !key.canConvert<QString>()) {
+            item->setSelected(false);
+            continue;
+        }
+
+        QVariant data = item->data(0, Qt::UserRole);
+        if (data.isNull() || !data.canConvert<QString>()) {
+            item->setSelected(false);
+            continue;
+        }
+
+        dragDropData.insert(key.toString(), data.toString());
     }
 
     QMimeData *mimeData = new QMimeData();
-    mimeData->setText(data.toString());
+    mimeData->setData(JSON_MIME, dragDropData.data());
 
     QDrag *drag = new QDrag(this);
     drag->setMimeData(mimeData);

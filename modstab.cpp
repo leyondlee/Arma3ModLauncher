@@ -64,7 +64,7 @@ void ModsTab::loadAvailableMods()
             modItem->setText(0, filename);
             modItem->setToolTip(0, filename);
 
-            QString path = Util::joinPaths({canonicalPath, filename});
+            QString path = Util::joinPaths({folder, filename});
             modItem->setData(0, Qt::UserRole, path);
         }
     }

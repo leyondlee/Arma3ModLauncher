@@ -8,6 +8,11 @@
 #include <QMimeData>
 #include <QDrag>
 #include <QTreeWidgetItem>
+#include <QMimeType>
+
+#include "modstabdragdropdata.h"
+
+#define JSON_MIME "application/json"
 
 class ModsTabTreeWidget : public QTreeWidget
 {

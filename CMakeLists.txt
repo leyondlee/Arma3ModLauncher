@@ -32,6 +32,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         modgroupstreewidget.h modgroupstreewidget.cpp
         availablemodstreewidget.h availablemodstreewidget.cpp
         modstabtreewidget.h modstabtreewidget.cpp
+        modstabdragdropdata.h modstabdragdropdata.cpp
+
 
 
 
