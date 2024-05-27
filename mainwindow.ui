@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>661</width>
-    <height>603</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,13 +42,13 @@
       <property name="title">
        <string>Available Mods</string>
       </property>
-      <widget class="QTreeWidget" name="availableModsTreeWidget">
+      <widget class="AvailableModsTreeWidget" name="availableModsTreeWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>20</y>
+         <y>50</y>
          <width>281</width>
-         <height>431</height>
+         <height>401</height>
         </rect>
        </property>
        <property name="dragEnabled">
@@ -62,6 +62,32 @@
          <string notr="true">1</string>
         </property>
        </column>
+      </widget>
+      <widget class="QPushButton" name="refreshPushButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>81</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Refresh</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_3">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>20</y>
+         <width>81</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Expand All</string>
+       </property>
       </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_2">
@@ -80,9 +106,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>20</y>
+         <y>50</y>
          <width>281</width>
-         <height>431</height>
+         <height>401</height>
         </rect>
        </property>
        <property name="dragEnabled">
@@ -96,6 +122,32 @@
          <string notr="true">1</string>
         </property>
        </column>
+      </widget>
+      <widget class="QCheckBox" name="checkBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>81</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Select All</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_2">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>20</y>
+         <width>81</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Expand All</string>
+       </property>
       </widget>
      </widget>
     </widget>
@@ -221,6 +273,11 @@
    <class>ModGroupsTreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>modgroupstreewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>AvailableModsTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>availablemodstreewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

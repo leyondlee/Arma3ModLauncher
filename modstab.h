@@ -9,10 +9,10 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QApplication>
-#include <QMimeData>
 
 #include "util.h"
 #include "settings.h"
+#include "availablemodstreewidget.h"
 #include "modgroupstreewidget.h"
 #include "modgroupstreewidgetitem.h"
 
@@ -26,20 +26,10 @@ public:
 
 private:
     Settings *settings;
-    QTreeWidget *availableModsTreeWidget;
+    AvailableModsTreeWidget *availableModsTreeWidget;
     ModGroupsTreeWidget *modGroupsTreeWidget;
 
     void init();
-    bool hasItemInTreeWidget(QTreeWidget *treeWidget, QString text, QVariant data, int column);
-    bool hasItemInTreeWidgetItem(QTreeWidgetItem *item, QString text, QVariant data, int column);
-    void removeTreeWidgetItem(QTreeWidgetItem *);
-
-    void modGroupsDragEnterSignalHandler(QDragEnterEvent *);
-    void modGroupsDragLeaveSignalHandler(QDragLeaveEvent *);
-    void modGroupsDragMoveSignalHandler(QDragMoveEvent *);
-    void modGroupsDropSignalHandler(QDropEvent *);
-    void modGroupsCustomContextMenuRequestedHandler(QPoint);
-    void modGroupsTreeAddFolderActionTriggered(bool);
 
 signals:
 };

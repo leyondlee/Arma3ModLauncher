@@ -3,6 +3,7 @@
 
 #include <QStringList>
 #include <QDir>
+#include <QTreeWidgetItem>
 
 class Util
 {
@@ -11,6 +12,8 @@ public:
 
     static QString joinPaths(QStringList);
     static QString getFilename(QString);
+    static bool hasItemInTreeWidgetItem(QTreeWidgetItem *item, QString text, QVariant data, int column);
+    static void removeTreeWidgetItem(QTreeWidgetItem *item);
 };
 
 #endif // UTIL_H
