@@ -76,7 +76,7 @@
         <string>Refresh</string>
        </property>
       </widget>
-      <widget class="QCheckBox" name="checkBox_3">
+      <widget class="QCheckBox" name="availableModsExpandAllCheckBox">
        <property name="geometry">
         <rect>
          <x>210</x>
@@ -123,7 +123,7 @@
         </property>
        </column>
       </widget>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="modGroupsSelectAllCheckBox">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -136,7 +136,7 @@
         <string>Select All</string>
        </property>
       </widget>
-      <widget class="QCheckBox" name="checkBox_2">
+      <widget class="QCheckBox" name="modGroupsExpandAllCheckBox">
        <property name="geometry">
         <rect>
          <x>210</x>
@@ -165,9 +165,9 @@
        </rect>
       </property>
       <property name="title">
-       <string>Addon Folders</string>
+       <string>Mod Folders</string>
       </property>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="addModFolderPushButton">
        <property name="geometry">
         <rect>
          <x>520</x>
@@ -196,13 +196,104 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>611</width>
+        <width>301</width>
         <height>241</height>
        </rect>
       </property>
       <property name="title">
        <string>Parameters</string>
       </property>
+      <widget class="QCheckBox" name="skipIntroCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>201</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Show static background in menu</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="noSplashCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>201</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Skip logos at startup</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="windowCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>201</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Window Mode</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="worldEmptyCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>170</y>
+         <width>201</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Empty World</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="filePatchingCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>201</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>File Patching</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="noLogsCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>140</y>
+         <width>201</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>No Logs</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="showScriptErrorsCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>200</y>
+         <width>201</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Show Script Errors</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_6">
       <property name="geometry">
@@ -216,7 +307,7 @@
       <property name="title">
        <string>Arma 3 Executable</string>
       </property>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="arma3ExecutablePushButton">
        <property name="geometry">
         <rect>
          <x>530</x>
@@ -236,6 +327,29 @@
          <y>20</y>
          <width>511</width>
          <height>22</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_5">
+      <property name="geometry">
+       <rect>
+        <x>320</x>
+        <y>70</y>
+        <width>301</width>
+        <height>251</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Additional Parameters</string>
+      </property>
+      <widget class="QPlainTextEdit" name="additionalParametersPlainTextEdit">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>281</width>
+         <height>221</height>
         </rect>
        </property>
       </widget>
