@@ -7,6 +7,7 @@ ModGroupsTreeWidget::ModGroupsTreeWidget(QWidget *parent)
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &ModGroupsTreeWidget::customContextMenuRequested, this, &ModGroupsTreeWidget::customContextMenuRequestedHandler);
+    connect(this, &ModGroupsTreeWidget::itemChanged, this, &ModGroupsTreeWidget::itemChangedHandler);
 }
 
 void ModGroupsTreeWidget::setAvailableModsTreeWidget(AvailableModsTreeWidget *availableModsTreeWidget)
@@ -64,6 +65,25 @@ void ModGroupsTreeWidget::customContextMenuRequestedHandler(QPoint pos)
     menu->exec(this->mapToGlobal(pos));
 }
 
+void ModGroupsTreeWidget::itemChangedHandler(QTreeWidgetItem *item, int column)
+{
+    if (column != 0) {
+        return;
+    }
+
+    ModGroupsTreeWidgetItem *castedItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(item);
+    if (castedItem == nullptr) {
+        return;
+    }
+
+    if (!castedItem->hasCheckStateChanged()) {
+        return;
+    }
+
+    castedItem->updateSavedCheckState();
+    emit itemCheckStateChangedSignal(castedItem);
+}
+
 void ModGroupsTreeWidget::addFolderActionTriggered(bool checked)
 {
     bool ok;
@@ -80,7 +100,7 @@ void ModGroupsTreeWidget::addFolderActionTriggered(bool checked)
 
     addFolder(name);
 
-    emit updateSignal();
+    emit treeChangedSignal();
 }
 
 void ModGroupsTreeWidget::deleteActionTriggered(bool checked)
@@ -101,7 +121,7 @@ void ModGroupsTreeWidget::deleteActionTriggered(bool checked)
         Util::removeTreeWidgetItem(item);
     }
 
-    emit updateSignal();
+    emit treeChangedSignal();
 }
 
 void ModGroupsTreeWidget::dragEnterEvent(QDragEnterEvent *event)
@@ -208,7 +228,7 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
                 continue;
             }
 
-            QTreeWidgetItem *newItem = targetItemCasted->addChildModItem(data.toString());
+            ModGroupsTreeWidgetItem *newItem = targetItemCasted->addChildModItem(data.toString());
             if (newItem == nullptr) {
                 continue;
             }
@@ -217,7 +237,7 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
 
             if (sourceTreeWidget == this) {
                 itemsToRemove.append(item);
-                newItem->setCheckState(0, item->checkState(0));
+                newItem->setCheckState(item->checkState(0));
             }
         }
 
@@ -231,6 +251,6 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
     event->accept();
 
     if (hasChanges) {
-        emit updateSignal();
+        emit treeChangedSignal();
     }
 }

@@ -26,6 +26,7 @@ private:
     AvailableModsTreeWidget *availableModsTreeWidget;
 
     void customContextMenuRequestedHandler(QPoint pos);
+    void itemChangedHandler(QTreeWidgetItem *item, int column);
     void addFolderActionTriggered(bool checked);
     void deleteActionTriggered(bool checked);
 
@@ -36,7 +37,8 @@ protected:
     void dropEvent(QDropEvent *event) override;
 
 signals:
-    void updateSignal();
+    void treeChangedSignal();
+    void itemCheckStateChangedSignal(ModGroupsTreeWidgetItem *item);
 };
 
 #endif // MODGROUPSTREEWIDGET_H

@@ -31,7 +31,8 @@ private:
     void init();
     void loadAvailableMods();
     void loadModGroups();
-    void modGroupsUpdateSignalHandler();
+    void modGroupsTreeChangedHandler();
+    void modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem *item);
 
 signals:
 };

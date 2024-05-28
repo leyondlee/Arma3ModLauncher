@@ -15,7 +15,8 @@ void ModsTab::init()
     this->modGroupsTreeWidget->setAcceptDrops(true);
     this->modGroupsTreeWidget->setAvailableModsTreeWidget(availableModsTreeWidget);
 
-    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::updateSignal, this, &ModsTab::modGroupsUpdateSignalHandler);
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::treeChangedSignal, this, &ModsTab::modGroupsTreeChangedHandler);
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::itemCheckStateChangedSignal, this, &ModsTab::modGroupsTreeItemCheckStateChangedHandler);
 
     loadAvailableMods();
     loadModGroups();
@@ -23,6 +24,7 @@ void ModsTab::init()
 
 void ModsTab::loadAvailableMods()
 {
+    this->availableModsTreeWidget->blockSignals(true);
     this->availableModsTreeWidget->clear();
 
     QVariant modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
@@ -77,10 +79,12 @@ void ModsTab::loadAvailableMods()
     }
 
     this->availableModsTreeWidget->doSort();
+    this->availableModsTreeWidget->blockSignals(false);
 }
 
 void ModsTab::loadModGroups()
 {
+    this->modGroupsTreeWidget->blockSignals(true);
     this->modGroupsTreeWidget->clear();
 
     QVariant modGroupsSettings = this->settings->get(MODGROUPS_KEY);
@@ -130,7 +134,7 @@ void ModsTab::loadModGroups()
             }
 
             if (isCheckedJsonValue.toBool()) {
-                item->setCheckState(0, Qt::Checked);
+                item->setCheckState(Qt::Checked);
             }
 
             if (!this->availableModsTreeWidget->hasItem(Util::getFilename(path), QVariant(path), 0)) {
@@ -139,9 +143,17 @@ void ModsTab::loadModGroups()
             }
         }
     }
+
+    this->modGroupsTreeWidget->doSort();
+    this->modGroupsTreeWidget->blockSignals(false);
 }
 
-void ModsTab::modGroupsUpdateSignalHandler()
+void ModsTab::modGroupsTreeChangedHandler()
 {
     this->settings->save();
+}
+
+void ModsTab::modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem *item)
+{
+    qDebug() << item->text(0);
 }

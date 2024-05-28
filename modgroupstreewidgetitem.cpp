@@ -9,7 +9,7 @@ ModGroupsTreeWidgetItem::ModGroupsTreeWidgetItem(QString name, QVariant data, bo
     this->setText(0, name);
     this->setToolTip(0, name);
     this->setData(0, Qt::UserRole, data);
-    this->setCheckState(0, Qt::Unchecked);
+    this->setCheckState(Qt::Unchecked);
 
     if (this->folder) {
         this->setIcon(0, QApplication::style()->standardIcon(QStyle::SP_DirHomeIcon));
@@ -52,4 +52,20 @@ ModGroupsTreeWidgetItem *ModGroupsTreeWidgetItem::castTreeWidgetItem(QTreeWidget
     }
 
     return dynamic_cast<ModGroupsTreeWidgetItem *>(item);
+}
+
+void ModGroupsTreeWidgetItem::setCheckState(Qt::CheckState state)
+{
+    QTreeWidgetItem::setCheckState(0, state);
+    updateSavedCheckState();
+}
+
+bool ModGroupsTreeWidgetItem::hasCheckStateChanged()
+{
+    return this->savedCheckState != this->checkState(0);
+}
+
+void ModGroupsTreeWidgetItem::updateSavedCheckState()
+{
+    this->savedCheckState = this->checkState(0);
 }

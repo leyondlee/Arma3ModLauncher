@@ -16,10 +16,14 @@ public:
     ModGroupsTreeWidgetItem *addChildModItem(QString path);
     void setMissing(bool isMissing);
     static ModGroupsTreeWidgetItem *castTreeWidgetItem(QTreeWidgetItem *item);
+    void setCheckState(Qt::CheckState state);
+    bool hasCheckStateChanged();
+    void updateSavedCheckState();
 
 private:
     bool folder;
     bool isMissing;
+    Qt::CheckState savedCheckState;
 };
 
 #endif // MODGROUPSTREEWIDGETITEM_H
