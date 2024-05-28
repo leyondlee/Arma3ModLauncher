@@ -10,8 +10,8 @@ class Util
 public:
     Util() = delete;
 
-    static QString joinPaths(QStringList);
-    static QString getFilename(QString);
+    static QString joinPaths(QStringList paths);
+    static QString getFilename(QString path);
     static bool hasItemInTreeWidgetItem(QTreeWidgetItem *item, QString text, QVariant data, int column);
     static void removeTreeWidgetItem(QTreeWidgetItem *item);
 };

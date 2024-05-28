@@ -23,8 +23,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void saveSettings();
-
 private:
     Ui::MainWindow *ui;
     Settings *settings;
@@ -32,6 +30,7 @@ private:
     ModsTab *modsTab;
     OptionsTab *optionsTab;
 
-    void tabWidgetCurrentChangedHandler(int);
+    void tabWidgetCurrentChangedHandler(int index);
+    void applicationAboutToQuitHandler();
 };
 #endif // MAINWINDOW_H

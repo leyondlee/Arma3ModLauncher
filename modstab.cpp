@@ -14,10 +14,17 @@ void ModsTab::init()
 {
     this->modGroupsTreeWidget->setAcceptDrops(true);
     this->modGroupsTreeWidget->setAvailableModsTreeWidget(availableModsTreeWidget);
+
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::updateSignal, this, &ModsTab::modGroupsUpdateSignalHandler);
+
+    loadAvailableMods();
+    loadModGroups();
 }
 
 void ModsTab::loadAvailableMods()
 {
+    this->availableModsTreeWidget->clear();
+
     QVariant modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
     if (modFoldersSettings.isNull() || !modFoldersSettings.canConvert<QStringList>()) {
         return;
@@ -69,5 +76,72 @@ void ModsTab::loadAvailableMods()
         }
     }
 
-    this->availableModsTreeWidget->sortItems(0, Qt::AscendingOrder);
+    this->availableModsTreeWidget->doSort();
+}
+
+void ModsTab::loadModGroups()
+{
+    this->modGroupsTreeWidget->clear();
+
+    QVariant modGroupsSettings = this->settings->get(MODGROUPS_KEY);
+    if (modGroupsSettings.isNull() || !modGroupsSettings.canConvert<QString>()) {
+        return;
+    }
+
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(modGroupsSettings.toString().toUtf8());
+    if (jsonDocument.isNull()) {
+        return;
+    }
+
+    QJsonObject jsonObject = jsonDocument.object();
+    for (auto &key : jsonObject.keys()) {
+        QJsonValue jsonValue = jsonObject.value(key);
+        if (!jsonValue.isArray()) {
+            continue;
+        }
+
+        ModGroupsTreeWidgetItem *folderItem = this->modGroupsTreeWidget->addFolder(key);
+
+        QJsonArray values = jsonValue.toArray();
+        for (auto value : values) {
+            if (!value.isObject()) {
+                continue;
+            }
+
+            QJsonObject valueObject = value.toObject();
+            if (!(valueObject.contains(MODGROUPS_ISCHECKED_KEY)) || !(valueObject.contains(MODGROUPS_PATH_KEY))) {
+                continue;
+            }
+
+            QJsonValue isCheckedJsonValue = valueObject.value(MODGROUPS_ISCHECKED_KEY);
+            if (!isCheckedJsonValue.isBool()) {
+                continue;
+            }
+
+            QJsonValue pathJsonValue = valueObject.value(MODGROUPS_PATH_KEY);
+            if (!pathJsonValue.isString()) {
+                continue;
+            }
+
+            QString path = pathJsonValue.toString();
+            ModGroupsTreeWidgetItem *item = folderItem->addChildModItem(path);
+            if (item == nullptr) {
+                continue;
+            }
+
+            if (isCheckedJsonValue.toBool()) {
+                item->setCheckState(0, Qt::Checked);
+            }
+
+            if (!this->availableModsTreeWidget->hasItem(Util::getFilename(path), QVariant(path), 0)) {
+                item->setMissing(true);
+                continue;
+            }
+        }
+    }
+}
+
+void ModsTab::modGroupsUpdateSignalHandler()
+{
+    this->settings->save();
 }

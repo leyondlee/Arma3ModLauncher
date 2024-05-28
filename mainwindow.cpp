@@ -13,10 +13,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->optionsTab = new OptionsTab(ui->optionsTab, this->settings);
 
     connect(this->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabWidgetCurrentChangedHandler);
+    connect(QApplication::instance(), &QApplication::aboutToQuit, this, &MainWindow::applicationAboutToQuitHandler);
 
     this->setWindowTitle(QApplication::applicationName());
     this->tabWidget->setCurrentIndex(0);
-    this->modsTab->loadAvailableMods();
 }
 
 MainWindow::~MainWindow()
@@ -30,4 +30,9 @@ void MainWindow::tabWidgetCurrentChangedHandler(int index)
         optionsTab->tabChanged();
         return;
     }
+}
+
+void MainWindow::applicationAboutToQuitHandler()
+{
+    this->settings->save();
 }

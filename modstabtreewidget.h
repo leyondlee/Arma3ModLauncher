@@ -21,13 +21,17 @@ class ModsTabTreeWidget : public QTreeWidget
 public:
     explicit ModsTabTreeWidget(Qt::DropAction, QWidget *parent = nullptr);
 
+    QTreeWidgetItem *getItem(QString text, QVariant data, int column);
+    bool hasItem(QString text, QVariant data, int column);
+    void doSort();
+
 private:
     Qt::DropAction dropAction;
     QPoint dragStartPosition;
 
 protected:
     bool isItemDraggable(QTreeWidgetItem *item);
-    void mousePressEvent(QMouseEvent *) override;
+    void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
 };

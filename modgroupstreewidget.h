@@ -19,22 +19,24 @@ class ModGroupsTreeWidget : public ModsTabTreeWidget
 public:
     explicit ModGroupsTreeWidget(QWidget *parent = nullptr);
 
-    void setAvailableModsTreeWidget(AvailableModsTreeWidget *);
+    void setAvailableModsTreeWidget(AvailableModsTreeWidget *availableModsTreeWidget);
+    ModGroupsTreeWidgetItem *addFolder(QString name);
 
 private:
     AvailableModsTreeWidget *availableModsTreeWidget;
 
-    void doSort();
-    QTreeWidgetItem *getItem(QString text, QVariant data, int column);
-    bool hasItem(QString text, QVariant data, int column);
     void customContextMenuRequestedHandler(QPoint pos);
-    void addFolderActionTriggered(bool);
+    void addFolderActionTriggered(bool checked);
+    void deleteActionTriggered(bool checked);
 
 protected:
-    void dragEnterEvent(QDragEnterEvent *) override;
-    void dragLeaveEvent(QDragLeaveEvent *) override;
-    void dragMoveEvent(QDragMoveEvent *) override;
-    void dropEvent(QDropEvent *) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragLeaveEvent(QDragLeaveEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+
+signals:
+    void updateSignal();
 };
 
 #endif // MODGROUPSTREEWIDGET_H

@@ -60,9 +60,9 @@ QString OptionsTab::getDetectedArma3Folder()
     return folderName;
 }
 
-void OptionsTab::setArma3Executable(QString string)
+void OptionsTab::setArma3Executable(QString path)
 {
-    this->arma3ExecutableLineEdit->setText(string);
+    this->arma3ExecutableLineEdit->setText(path);
     this->arma3ExecutableLineEdit->setCursorPosition(0);
 }
 

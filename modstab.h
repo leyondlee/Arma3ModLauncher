@@ -21,8 +21,7 @@ class ModsTab : public QObject
     Q_OBJECT
 
 public:
-    explicit ModsTab(QWidget *, Settings *);
-    void loadAvailableMods();
+    explicit ModsTab(QWidget *modsTab, Settings *settings);
 
 private:
     Settings *settings;
@@ -30,6 +29,9 @@ private:
     ModGroupsTreeWidget *modGroupsTreeWidget;
 
     void init();
+    void loadAvailableMods();
+    void loadModGroups();
+    void modGroupsUpdateSignalHandler();
 
 signals:
 };

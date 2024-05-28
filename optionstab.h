@@ -18,7 +18,7 @@ class OptionsTab : public QObject
     Q_OBJECT
 
 public:
-    explicit OptionsTab(QWidget *, Settings *);
+    explicit OptionsTab(QWidget *optionsTab, Settings *settings);
 
     void tabChanged();
 
@@ -29,8 +29,8 @@ private:
 
     void init();
     QString getDetectedArma3Folder();
-    void setArma3Executable(QString);
-    bool hasModFolder(QString);
+    void setArma3Executable(QString path);
+    bool hasModFolder(QString folder);
 
 signals:
 };

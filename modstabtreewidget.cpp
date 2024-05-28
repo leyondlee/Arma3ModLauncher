@@ -1,6 +1,6 @@
 #include "modstabtreewidget.h"
 
-ModsTabTreeWidget::ModsTabTreeWidget(Qt::DropAction dropAction,QWidget *parent)
+ModsTabTreeWidget::ModsTabTreeWidget(Qt::DropAction dropAction, QWidget *parent)
     : QTreeWidget{parent}
 {
     this->dropAction = dropAction;
@@ -12,6 +12,30 @@ ModsTabTreeWidget::ModsTabTreeWidget(Qt::DropAction dropAction,QWidget *parent)
 
     this->setDragEnabled(false);
     this->setAcceptDrops(false);
+}
+
+QTreeWidgetItem *ModsTabTreeWidget::getItem(QString text, QVariant data, int column)
+{
+    QTreeWidgetItemIterator it(this);
+    while (*it) {
+        if (QString::compare((*it)->text(column), text) == 0 && (*it)->data(column, Qt::UserRole) == data) {
+            return (*it);
+        }
+
+        ++it;
+    }
+
+    return nullptr;
+}
+
+bool ModsTabTreeWidget::hasItem(QString text, QVariant data, int column)
+{
+    return getItem(text, data, column) != nullptr;
+}
+
+void ModsTabTreeWidget::doSort()
+{
+    this->sortItems(0, Qt::AscendingOrder);
 }
 
 bool ModsTabTreeWidget::isItemDraggable(QTreeWidgetItem *item)
@@ -32,6 +56,8 @@ void ModsTabTreeWidget::mousePressEvent(QMouseEvent *event)
 
 void ModsTabTreeWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    QTreeWidget::mouseReleaseEvent(event);
+
     if (this->dragStartPosition.isNull()) {
         return;
     }
