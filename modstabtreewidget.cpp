@@ -83,8 +83,9 @@ void ModsTabTreeWidget::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    ModsTabDragDropData dragDropData;
+    item->setSelected(true);
 
+    ModsTabDragDropData dragDropData;
     QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
     for (auto item : selectedItems) {
         QTreeWidgetItem *parentItem = item->parent();
