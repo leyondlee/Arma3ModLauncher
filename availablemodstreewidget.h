@@ -14,9 +14,6 @@ public:
 
 private:
     QPoint dragStartPosition;
-
-protected:
-    bool isItemDraggable(QTreeWidgetItem *item) override;
 };
 
 #endif // AVAILABLEMODSTREEWIDGET_H

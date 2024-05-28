@@ -19,18 +19,23 @@ void ModGroupsTreeWidget::doSort()
     this->sortItems(0, Qt::AscendingOrder);
 }
 
-bool ModGroupsTreeWidget::hasItem(QString text, QVariant data, int column)
+QTreeWidgetItem *ModGroupsTreeWidget::getItem(QString text, QVariant data, int column)
 {
     QTreeWidgetItemIterator it(this);
     while (*it) {
         if (QString::compare((*it)->text(column), text) == 0 && (*it)->data(column, Qt::UserRole) == data) {
-            return true;
+            return (*it);
         }
 
         ++it;
     }
 
-    return false;
+    return nullptr;
+}
+
+bool ModGroupsTreeWidget::hasItem(QString text, QVariant data, int column)
+{
+    return getItem(text, data, column) != nullptr;
 }
 
 void ModGroupsTreeWidget::customContextMenuRequestedHandler(QPoint pos)
@@ -62,11 +67,6 @@ void ModGroupsTreeWidget::addFolderActionTriggered(bool)
     ModGroupsTreeWidgetItem *folderItem = new ModGroupsTreeWidgetItem(name, QVariant(name), true);
     this->addTopLevelItem(folderItem);
     doSort();
-}
-
-bool ModGroupsTreeWidget::isItemDraggable(QTreeWidgetItem *item)
-{
-    return true;
 }
 
 void ModGroupsTreeWidget::dragEnterEvent(QDragEnterEvent *event)
@@ -134,13 +134,13 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
         return;
     }
 
-    QTreeWidgetItem *parentItem = item;
-    while (parentItem->parent() != nullptr) {
-        parentItem = parentItem->parent();
+    QTreeWidgetItem *targetItem = item;
+    while (targetItem->parent() != nullptr) {
+        targetItem = targetItem->parent();
     }
 
-    ModGroupsTreeWidgetItem *parentItemCasted = dynamic_cast<ModGroupsTreeWidgetItem *>(parentItem);
-    if (parentItemCasted == nullptr || !parentItemCasted->isFolder()) {
+    ModGroupsTreeWidgetItem *targetItemCasted = dynamic_cast<ModGroupsTreeWidgetItem *>(targetItem);
+    if (targetItemCasted == nullptr || !targetItemCasted->isFolder()) {
         event->ignore();
         return;
     }
@@ -148,63 +148,51 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
     ModsTabDragDropData dragDropData;
     dragDropData.load(event->mimeData()->data(JSON_MIME));
 
-    QStringList keys = dragDropData.keys();
-
-    if (sourceTreeWidget == this) { // TODO
-        event->ignore();
-        return;
-    }
-
-    for (auto &key : keys) {
-        QVariant variant = dragDropData.value(key);
-        if (!variant.canConvert<QStringList>()) {
+    QList<int> keys = dragDropData.keys();
+    for (auto key : keys) {
+        QTreeWidgetItem *parentItem = sourceTreeWidget->topLevelItem(key);
+        if (parentItem == nullptr || parentItem == targetItem) {
             continue;
         }
 
-        QStringList values = variant.toStringList();
-        for (auto &value : values) {
-            QString name = Util::getFilename(value);
+        QVariant variant = dragDropData.value(key);
+        if (variant.isNull() || !variant.canConvert<QList<int>>()) {
+            continue;
+        }
 
-            QVariant data(value);
-            if (Util::hasItemInTreeWidgetItem(parentItem, name, data, 0)) {
+        QList<QTreeWidgetItem *> itemsToRemove;
+
+        QList<int> values = variant.value<QList<int>>();
+        for (auto &value : values) {
+            QTreeWidgetItem *item = parentItem->child(value);
+            if (item == nullptr) {
+                continue;
+            }
+
+            QVariant data = item->data(0, Qt::UserRole);
+            if (data.isNull() || !data.canConvert<QString>()) {
+                continue;
+            }
+
+            QString name = Util::getFilename(data.toString());
+            if (Util::hasItemInTreeWidgetItem(targetItem, name, data, 0)) {
                 continue;
             }
 
             ModGroupsTreeWidgetItem *newItem = new ModGroupsTreeWidgetItem(name, data, false);
-            parentItem->addChild(newItem);
+            targetItem->addChild(newItem);
+
+            if (sourceTreeWidget == this) {
+                itemsToRemove.append(item);
+            }
+        }
+
+        for (auto item : itemsToRemove) {
+            Util::removeTreeWidgetItem(item);
         }
     }
 
-    parentItem->setExpanded(true);
+    targetItem->setExpanded(true);
     doSort();
     event->accept();
-
-    // QString path = event->mimeData()->text();
-    // if (path.isEmpty()) {
-    //     event->ignore();
-    //     return;
-    // }
-
-    // QString name = Util::getFilename(path);
-
-    // parentItem->setExpanded(true);
-
-    // QVariant data(path);
-    // if (Util::hasItemInTreeWidgetItem(parentItem, name, data, 0)) {
-    //     event->ignore();
-    //     return;
-    // }
-
-    // if (sourceTreeWidget == this) {
-    //     QTreeWidgetItem *currentItem = sourceTreeWidget->currentItem();
-    //     if (currentItem->parent() == parentItem) {
-    //         event->ignore();
-    //         return;
-    //     }
-
-    //     Util::removeTreeWidgetItem(currentItem);
-    // }
-
-    // ModGroupsTreeWidgetItem *newItem = new ModGroupsTreeWidgetItem(name, data, false);
-    // parentItem->addChild(newItem);
 }

@@ -25,12 +25,12 @@ private:
     AvailableModsTreeWidget *availableModsTreeWidget;
 
     void doSort();
+    QTreeWidgetItem *getItem(QString text, QVariant data, int column);
     bool hasItem(QString text, QVariant data, int column);
     void customContextMenuRequestedHandler(QPoint pos);
     void addFolderActionTriggered(bool);
 
 protected:
-    bool isItemDraggable(QTreeWidgetItem *item) override;
     void dragEnterEvent(QDragEnterEvent *) override;
     void dragLeaveEvent(QDragLeaveEvent *) override;
     void dragMoveEvent(QDragMoveEvent *) override;

@@ -5,12 +5,3 @@ AvailableModsTreeWidget::AvailableModsTreeWidget(QWidget *parent)
 {
 
 }
-
-bool AvailableModsTreeWidget::isItemDraggable(QTreeWidgetItem *item)
-{
-    if (item == nullptr) {
-        return false;
-    }
-
-    return (this->indexOfTopLevelItem(item) == -1);
-}

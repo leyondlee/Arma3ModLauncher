@@ -2,7 +2,7 @@
 #define MODSTABDRAGDROPDATA_H
 
 #include <QObject>
-#include <QMap>
+#include <QHash>
 #include <QJsonDocument>
 
 class ModsTabDragDropData : public QObject
@@ -11,14 +11,14 @@ class ModsTabDragDropData : public QObject
 public:
     explicit ModsTabDragDropData(QObject *parent = nullptr);
 
-    QStringList keys();
-    QVariant value(QString key);
-    void insert(QString key, QString value);
+    QList<int> keys();
+    QVariant value(int key);
+    void insert(int key, int value);
     QByteArray data();
     void load(QByteArray data);
 
 private:
-    QMap<QString, QStringList> map;
+    QHash<int, QList<int>> hashMap;
 
 signals:
 };

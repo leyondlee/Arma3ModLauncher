@@ -26,7 +26,7 @@ private:
     QPoint dragStartPosition;
 
 protected:
-    virtual bool isItemDraggable(QTreeWidgetItem *item) = 0;
+    bool isItemDraggable(QTreeWidgetItem *item);
     void mousePressEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;

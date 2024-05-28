@@ -14,6 +14,15 @@ ModsTabTreeWidget::ModsTabTreeWidget(Qt::DropAction dropAction,QWidget *parent)
     this->setAcceptDrops(false);
 }
 
+bool ModsTabTreeWidget::isItemDraggable(QTreeWidgetItem *item)
+{
+    if (item == nullptr) {
+        return false;
+    }
+
+    return (this->indexOfTopLevelItem(item) == -1);
+}
+
 void ModsTabTreeWidget::mousePressEvent(QMouseEvent *event)
 {
     QTreeWidget::mousePressEvent(event);
@@ -53,28 +62,24 @@ void ModsTabTreeWidget::mouseMoveEvent(QMouseEvent *event)
     QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
     for (auto item : selectedItems) {
         QTreeWidgetItem *parentItem = item->parent();
-        if (parentItem == nullptr) {
+        if (parentItem == nullptr || parentItem->parent() != nullptr) {
             item->setSelected(false);
             continue;
         }
 
-        while (parentItem->parent() != nullptr) {
-            parentItem = parentItem->parent();
-        };
-
-        QVariant key = parentItem->data(0, Qt::UserRole);
-        if (key.isNull() || !key.canConvert<QString>()) {
+        int key = this->indexOfTopLevelItem(parentItem);
+        if (key == -1) {
             item->setSelected(false);
             continue;
         }
 
-        QVariant data = item->data(0, Qt::UserRole);
-        if (data.isNull() || !data.canConvert<QString>()) {
+        int value = parentItem->indexOfChild(item);
+        if (value == -1) {
             item->setSelected(false);
             continue;
         }
 
-        dragDropData.insert(key.toString(), data.toString());
+        dragDropData.insert(key, value);
     }
 
     QMimeData *mimeData = new QMimeData();
@@ -84,4 +89,5 @@ void ModsTabTreeWidget::mouseMoveEvent(QMouseEvent *event)
     drag->setMimeData(mimeData);
 
     Qt::DropAction dropAction = drag->exec(this->dropAction);
+    this->clearSelection();
 }

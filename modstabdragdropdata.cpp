@@ -6,64 +6,84 @@ ModsTabDragDropData::ModsTabDragDropData(QObject *parent)
 
 }
 
-QStringList ModsTabDragDropData::keys()
+QList<int> ModsTabDragDropData::keys()
 {
-    return this->map.keys();
+    return this->hashMap.keys();
 }
 
-QVariant ModsTabDragDropData::value(QString key)
+QVariant ModsTabDragDropData::value(int key)
 {
-    if (!this->map.contains(key)) {
+    if (!this->hashMap.contains(key)) {
         return QVariant();
     }
 
-    return QVariant(this->map.value(key));
+    return QVariant::fromValue(this->hashMap.value(key));
 }
 
-void ModsTabDragDropData::insert(QString key, QString value)
+void ModsTabDragDropData::insert(int key, int value)
 {
-    if (this->map.contains(key)) {
-        QStringList values = this->map.value(key);
-        values.append(value);
-        this->map.insert(key, values);
-        return;
+    QList<int> values;
+    if (this->hashMap.contains(key)) {
+        values = this->hashMap.value(key);
     }
 
-    this->map.insert(key, QStringList(value));
+    values.append(value);
+    this->hashMap.insert(key, values);
 }
 
 QByteArray ModsTabDragDropData::data()
 {
-    QVariantMap variantMap;
+    QVariantHash variantHash;
+    QList<int> keys = this->hashMap.keys();
+    for (auto &key : keys) {
+        QVariantList variantValues;
+        for (int value : this->hashMap.value(key)) {
+            variantValues.append(value);
+        }
 
-    QStringList keys = this->map.keys();
-    for (QString &key : keys) {
-        variantMap.insert(key, QVariant(this->map.value(key)));
+        variantHash.insert(QString::number(key), variantValues);
     }
 
-    return QJsonDocument::fromVariant(variantMap).toJson(QJsonDocument::Compact);
+    return QJsonDocument::fromVariant(variantHash).toJson(QJsonDocument::Compact);
 }
 
 void ModsTabDragDropData::load(QByteArray data)
 {
-    this->map.clear();
+    this->hashMap.clear();
 
     QJsonDocument jsonDocument = QJsonDocument::fromJson(data);
     QVariant variant = jsonDocument.toVariant();
-    if (!variant.canConvert<QVariantMap>()) {
+    if (!variant.canConvert<QVariantHash>()) {
         return;
     }
 
-    QVariantMap variantMap = variant.toMap();
+    QVariantHash variantHash = variant.toHash();
 
-    QStringList keys = variantMap.keys();
-    for (QString &key : keys) {
-        QVariant value = variantMap.value(key);
-        if (value.isNull() || !value.canConvert<QStringList>()) {
+    QStringList keys = variantHash.keys();
+    for (QString &keyStr : keys) {
+        bool ok;
+        int key = keyStr.toInt(&ok);
+        if (!ok) {
             continue;
         }
 
-        this->map.insert(key, value.toStringList());
+        QVariant value = variantHash.value(keyStr);
+        if (value.isNull() || !value.canConvert<QVariantList>()) {
+            continue;
+        }
+
+        QList<int> values;
+        for (auto &var : value.toList()) {
+            bool ok;
+            int varInt = var.toInt(&ok);
+            if (!ok) {
+                continue;
+            }
+
+            values.append(varInt);
+        }
+
+        this->hashMap.insert(key, values);
     }
 }
 
