@@ -259,7 +259,7 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
                 continue;
             }
 
-            ModGroupsTreeWidgetItem *newItem = targetItemCasted->addChildModItem(data.toString());
+            ModGroupsTreeWidgetItem *newItem = targetItemCasted->addModToFolder(data.toString());
             if (newItem == nullptr) {
                 continue;
             }

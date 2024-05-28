@@ -152,8 +152,8 @@ void ModsTab::loadModGroups()
                 continue;
             }
 
-            QString path = pathJsonValue.toString();
-            ModGroupsTreeWidgetItem *item = folderItem->addChildModItem(path);
+            QString path = Util::cleanPath(pathJsonValue.toString());
+            ModGroupsTreeWidgetItem *item = folderItem->addModToFolder(path);
             if (item == nullptr) {
                 continue;
             }
@@ -221,6 +221,8 @@ void ModsTab::modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem 
         parentItem->setCheckState(Qt::Unchecked);
     }
     this->modGroupsTreeWidget->blockSignals(false);
+
+    this->settings->save();
 }
 
 void ModsTab::availableModsExpandAllCheckBoxStateChanged(int state)

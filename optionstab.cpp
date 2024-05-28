@@ -153,9 +153,11 @@ bool OptionsTab::hasModFolder(QString folder)
 
 void OptionsTab::insertIntoModFoldersListWidget(QString text, int row)
 {
+    QString path = Util::cleanPath(text);
+
     QListWidgetItem *item = new QListWidgetItem();
-    item->setText(text);
-    item->setToolTip(text);
+    item->setText(path);
+    item->setToolTip(path);
 
     if (row == -1) {
         this->modFoldersListWidget->addItem(item);

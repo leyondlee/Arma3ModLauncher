@@ -22,10 +22,15 @@ bool ModGroupsTreeWidgetItem::isFolder()
     return this->folder;
 }
 
-ModGroupsTreeWidgetItem *ModGroupsTreeWidgetItem::addChildModItem(QString path)
+ModGroupsTreeWidgetItem *ModGroupsTreeWidgetItem::addModToFolder(QString path)
 {
-    QString name = Util::getFilename(path);
-    QVariant data(path);
+    if (!this->isFolder()) {
+        return nullptr;
+    }
+
+    QString cleanPath = Util::cleanPath(path);
+    QString name = Util::getFilename(cleanPath);
+    QVariant data(cleanPath);
     if (Util::hasItemInTreeWidgetItem(this, name, data, 0)) {
         return nullptr;
     }

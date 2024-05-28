@@ -13,7 +13,7 @@ public:
     ModGroupsTreeWidgetItem(QString name, QVariant data, bool isFolder = false);
 
     bool isFolder();
-    ModGroupsTreeWidgetItem *addChildModItem(QString path);
+    ModGroupsTreeWidgetItem *addModToFolder(QString path);
     void setMissing(bool isMissing);
     static ModGroupsTreeWidgetItem *castTreeWidgetItem(QTreeWidgetItem *item);
     void setCheckState(Qt::CheckState state);

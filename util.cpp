@@ -1,8 +1,13 @@
 #include "util.h"
 
+QString Util::cleanPath(QString path)
+{
+    return QDir::toNativeSeparators(QDir::cleanPath(path));
+}
+
 QString Util::joinPaths(QStringList paths)
 {
-    return QDir::toNativeSeparators(QDir::cleanPath(paths.join(QDir::separator())));
+    return cleanPath(paths.join(QDir::separator()));
 }
 
 QString Util::getFilename(QString path)
