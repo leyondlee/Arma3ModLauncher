@@ -42,7 +42,7 @@ void ModGroupsTreeWidget::customContextMenuRequestedHandler(QPoint pos)
 
     /*QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
     for (auto selectedItem : selectedItems) {
-        ModGroupsTreeWidgetItem *castedSelectedItem = dynamic_cast<ModGroupsTreeWidgetItem *>(selectedItem);
+        ModGroupsTreeWidgetItem *castedSelectedItem = ModGroupsTreeWidgetItem::castToModGroupsTreeWidgetItem(selectedItem);
         if (castedSelectedItem == nullptr || !castedSelectedItem->isFolder()) {
             continue;
         }
@@ -130,10 +130,8 @@ void ModGroupsTreeWidget::dragMoveEvent(QDragMoveEvent *event)
 
     bool hasSelectedItem = false;
     for (int i = 0; i < this->topLevelItemCount(); i += 1) {
-        QTreeWidgetItem *topLevelItem = this->topLevelItem(i);
-
-        ModGroupsTreeWidgetItem *castedtopLevelItem = dynamic_cast<ModGroupsTreeWidgetItem *>(topLevelItem);
-        if (castedtopLevelItem == nullptr || !castedtopLevelItem->isFolder()) {
+        ModGroupsTreeWidgetItem *topLevelItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(this->topLevelItem(i));
+        if (topLevelItem == nullptr || !topLevelItem->isFolder()) {
             continue;
         }
 
@@ -174,7 +172,7 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
         targetItem = targetItem->parent();
     }
 
-    ModGroupsTreeWidgetItem *targetItemCasted = dynamic_cast<ModGroupsTreeWidgetItem *>(targetItem);
+    ModGroupsTreeWidgetItem *targetItemCasted = ModGroupsTreeWidgetItem::castTreeWidgetItem(targetItem);
     if (targetItemCasted == nullptr || !targetItemCasted->isFolder()) {
         event->ignore();
         return;

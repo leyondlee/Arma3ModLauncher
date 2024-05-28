@@ -15,6 +15,7 @@ public:
     bool isFolder();
     ModGroupsTreeWidgetItem *addChildModItem(QString path);
     void setMissing(bool isMissing);
+    static ModGroupsTreeWidgetItem *castTreeWidgetItem(QTreeWidgetItem *item);
 
 private:
     bool folder;

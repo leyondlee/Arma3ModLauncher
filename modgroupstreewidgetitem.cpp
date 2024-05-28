@@ -44,3 +44,12 @@ void ModGroupsTreeWidgetItem::setMissing(bool isMissing)
         return;
     }
 }
+
+ModGroupsTreeWidgetItem *ModGroupsTreeWidgetItem::castTreeWidgetItem(QTreeWidgetItem *item)
+{
+    if (item == nullptr) {
+        return nullptr;
+    }
+
+    return dynamic_cast<ModGroupsTreeWidgetItem *>(item);
+}

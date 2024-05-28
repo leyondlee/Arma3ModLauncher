@@ -43,18 +43,13 @@ QString Settings::getModGroupsJson()
 {
     QJsonObject jsonObject;
     for (int i = 0; i < this->modGroupsTreeWidget->topLevelItemCount(); i += 1) {
-        QTreeWidgetItem *item = this->modGroupsTreeWidget->topLevelItem(i);
-        if (item == nullptr) {
+        ModGroupsTreeWidgetItem *item = ModGroupsTreeWidgetItem::castTreeWidgetItem(this->modGroupsTreeWidget->topLevelItem(i));
+        if (item == nullptr || !item->isFolder()) {
             continue;
         }
 
         QVariant data = item->data(0, Qt::UserRole);
         if (data.isNull() || !data.canConvert<QString>()) {
-            continue;
-        }
-
-        ModGroupsTreeWidgetItem *castedItem = dynamic_cast<ModGroupsTreeWidgetItem *>(item);
-        if (castedItem == nullptr || !castedItem->isFolder()) {
             continue;
         }
 
