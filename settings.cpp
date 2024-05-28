@@ -3,29 +3,51 @@
 Settings::Settings(QMainWindow *mainWindow)
     : QObject{mainWindow}
 {
-    QApplication::setOrganizationName(QApplication::applicationName());
-
-    this->settings = new QSettings(QSettings::Format::IniFormat, QSettings::UserScope, QApplication::organizationName(), QApplication::applicationName(), this);
     this->arma3ExecutableLineEdit = mainWindow->findChild<QLineEdit *>("arma3ExecutableLineEdit");
     this->modFoldersListWidget = mainWindow->findChild<QListWidget *>("modFoldersListWidget");
     this->modGroupsTreeWidget = mainWindow->findChild<QTreeWidget *>("modGroupsTreeWidget");
+    this->saveFilename = QString("%1.json").arg(Util::joinPaths({QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), QApplication::applicationName()}));
 }
 
 void Settings::save()
 {
-    this->settings->setValue(ARMA3EXECUTABLE_KEY, this->arma3ExecutableLineEdit->text());
-    this->settings->setValue(MODFOLDERS_KEY, getModFolders());
-    this->settings->setValue(MODGROUPS_KEY, getModGroupsJson());
+    QFile saveFile(this->saveFilename);
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        return;
+    }
+
+    QJsonObject jsonObject;
+    jsonObject.insert(ARMA3EXECUTABLE_KEY, this->arma3ExecutableLineEdit->text());
+    jsonObject.insert(MODFOLDERS_KEY, getModFolders());
+    jsonObject.insert(MODGROUPS_KEY, getModGroups());
+
+    saveFile.write(QJsonDocument(jsonObject).toJson());
 }
 
 QVariant Settings::get(QString key)
 {
-    return this->settings->value(key);
+    if (!QFile::exists(this->saveFilename)) {
+        return QVariant();
+    }
+
+    QFile saveFile(this->saveFilename);
+    if (!saveFile.open(QIODevice::ReadOnly)) {
+        return QVariant();
+    }
+
+    QByteArray saveData = saveFile.readAll();
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(saveData);
+    QJsonObject jsonObject = jsonDocument.object();
+    if (!jsonObject.contains(key)) {
+        return QVariant();
+    }
+
+    return jsonObject.value(key).toVariant();
 }
 
-QStringList Settings::getModFolders()
+QJsonArray Settings::getModFolders()
 {
-    QStringList modFolders;
+    QJsonArray modFolders;
     for (int i = 0; i < modFoldersListWidget->count(); i += 1) {
         QListWidgetItem *item = modFoldersListWidget->item(i);
         QString folder = item->text();
@@ -39,7 +61,7 @@ QStringList Settings::getModFolders()
     return modFolders;
 }
 
-QString Settings::getModGroupsJson()
+QJsonObject Settings::getModGroups()
 {
     QJsonObject jsonObject;
     for (int i = 0; i < this->modGroupsTreeWidget->topLevelItemCount(); i += 1) {
@@ -78,5 +100,5 @@ QString Settings::getModGroupsJson()
         jsonObject.insert(data.toString(), folderObject);
     }
 
-    return QString(QJsonDocument(jsonObject).toJson(QJsonDocument::Compact));
+    return jsonObject;
 }

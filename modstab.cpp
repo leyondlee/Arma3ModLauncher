@@ -99,17 +99,12 @@ void ModsTab::loadModGroups()
     this->modGroupsTreeWidget->clear();
 
     QVariant modGroupsSettings = this->settings->get(MODGROUPS_KEY);
-    if (modGroupsSettings.isNull() || !modGroupsSettings.canConvert<QString>()) {
-        return;
-    }
-
-    QJsonDocument jsonDocument = QJsonDocument::fromJson(modGroupsSettings.toString().toUtf8());
-    if (jsonDocument.isNull()) {
+    if (modGroupsSettings.isNull() || !modGroupsSettings.canConvert<QJsonObject>()) {
         return;
     }
 
     this->modGroupsTreeWidget->blockSignals(true);
-    QJsonObject jsonObject = jsonDocument.object();
+    QJsonObject jsonObject = modGroupsSettings.toJsonObject();
     for (auto &key : jsonObject.keys()) {
         QJsonValue jsonValue = jsonObject.value(key);
         if (!jsonValue.isObject()) {

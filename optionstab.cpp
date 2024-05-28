@@ -48,6 +48,7 @@ void OptionsTab::init()
             }
 
             this->settings->save();
+            this->modsTab->refreshMods();
         }
     } else {
         arma3Executable = arma3ExecutableSetting.toString();

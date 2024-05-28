@@ -12,6 +12,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QStandardPaths>
 
 #include "modgroupstreewidgetitem.h"
 
@@ -35,13 +36,13 @@ public:
     QVariant get(QString key);
 
 private:
-    QSettings *settings;
     QLineEdit *arma3ExecutableLineEdit;
     QListWidget *modFoldersListWidget;
     QTreeWidget *modGroupsTreeWidget;
+    QString saveFilename;
 
-    QStringList getModFolders();
-    QString getModGroupsJson();
+    QJsonArray getModFolders();
+    QJsonObject getModGroups();
 
 signals:
 };
