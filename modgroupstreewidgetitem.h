@@ -19,6 +19,8 @@ public:
     void setCheckState(Qt::CheckState state);
     bool hasCheckStateChanged();
     void updateSavedCheckState();
+    int getChildrenCheckedCount();
+    bool haveAllChildrenChecked();
 
 private:
     bool folder;

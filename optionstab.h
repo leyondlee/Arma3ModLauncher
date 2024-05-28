@@ -5,8 +5,12 @@
 #include <QMainWindow>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QPushButton>
+#include <QFileDialog>
+#include <QMenu>
 
 #include "util.h"
+#include "modstab.h"
 #include "settings.h"
 
 #define ARMA3_REGISTRY "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\bohemia interactive\\arma 3"
@@ -18,19 +22,27 @@ class OptionsTab : public QObject
     Q_OBJECT
 
 public:
-    explicit OptionsTab(QWidget *optionsTab, Settings *settings);
+    explicit OptionsTab(QWidget *optionsTab, ModsTab *modsTab, Settings *settings);
 
     void tabChanged();
 
 private:
+    ModsTab *modsTab;
     Settings *settings;
     QLineEdit *arma3ExecutableLineEdit;
     QListWidget *modFoldersListWidget;
+    QPushButton *modFoldersAddPushButton;
+    QPushButton *browseArma3ExecutablePushButton;
 
     void init();
+    void modFoldersListWidgetCustomContextMenuRequestedHandler(QPoint pos);
+    void modFoldersListWidgetRemoveActionTriggered(bool checked);
+    void modFoldersAddPushButtonClicked(bool checked);
+    void browseArma3ExecutablePushButtonClicked(bool checked);
     QString getDetectedArma3Folder();
     void setArma3Executable(QString path);
     bool hasModFolder(QString folder);
+    void insertIntoModFoldersListWidget(QString text, int row = -1);
 
 signals:
 };

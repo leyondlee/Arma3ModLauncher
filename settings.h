@@ -21,6 +21,8 @@
 
 #define MODGROUPS_ISCHECKED_KEY "isChecked"
 #define MODGROUPS_PATH_KEY "path"
+#define MODGROUPS_ISEXPANDED_KEY "isExpanded"
+#define MODGROUPS_MODS_KEY "mods"
 
 class Settings : public QObject
 {

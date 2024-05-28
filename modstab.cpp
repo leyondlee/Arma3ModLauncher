@@ -6,8 +6,18 @@ ModsTab::ModsTab(QWidget *modsTab, Settings *settings)
     this->settings = settings;
     this->availableModsTreeWidget = modsTab->findChild<AvailableModsTreeWidget *>("availableModsTreeWidget");
     this->modGroupsTreeWidget = modsTab->findChild<ModGroupsTreeWidget *>("modGroupsTreeWidget");
+    this->availableModsExpandAllCheckBox = modsTab->findChild<QCheckBox *>("availableModsExpandAllCheckBox");
+    this->modGroupsExpandAllCheckBox = modsTab->findChild<QCheckBox *>("modGroupsExpandAllCheckBox");
+    this->modGroupsSelectAllCheckBox = modsTab->findChild<QCheckBox *>("modGroupsSelectAllCheckBox");
+    this->refreshModsPushButton = modsTab->findChild<QPushButton *>("refreshModsPushButton");
 
     init();
+}
+
+void ModsTab::refreshMods()
+{
+    loadAvailableMods();
+    loadModGroups();
 }
 
 void ModsTab::init()
@@ -17,14 +27,16 @@ void ModsTab::init()
 
     connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::treeChangedSignal, this, &ModsTab::modGroupsTreeChangedHandler);
     connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::itemCheckStateChangedSignal, this, &ModsTab::modGroupsTreeItemCheckStateChangedHandler);
+    connect(this->availableModsExpandAllCheckBox, &QCheckBox::stateChanged, this, &ModsTab::availableModsExpandAllCheckBoxStateChanged);
+    connect(this->modGroupsExpandAllCheckBox, &QCheckBox::stateChanged, this, &ModsTab::modGroupsExpandAllCheckBoxStateChanged);
+    connect(this->modGroupsSelectAllCheckBox, &QCheckBox::stateChanged, this, &ModsTab::modGroupsSelectAllCheckBoxStateChanged);
+    connect(this->refreshModsPushButton, &QPushButton::clicked, this, &ModsTab::refreshPushButtonClicked);
 
-    loadAvailableMods();
-    loadModGroups();
+    refreshMods();
 }
 
 void ModsTab::loadAvailableMods()
 {
-    this->availableModsTreeWidget->blockSignals(true);
     this->availableModsTreeWidget->clear();
 
     QVariant modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
@@ -41,6 +53,7 @@ void ModsTab::loadAvailableMods()
         modFolders.append(folder);
     }
 
+    this->availableModsTreeWidget->blockSignals(true);
     for (auto &folder : modFolders) {
         QTreeWidgetItem *folderItem = new QTreeWidgetItem(this->availableModsTreeWidget);
         folderItem->setIcon(0, QApplication::style()->standardIcon(QStyle::SP_DirHomeIcon));
@@ -77,14 +90,12 @@ void ModsTab::loadAvailableMods()
             modItem->setData(0, Qt::UserRole, path);
         }
     }
-
-    this->availableModsTreeWidget->doSort();
     this->availableModsTreeWidget->blockSignals(false);
+    this->availableModsTreeWidget->doSort();
 }
 
 void ModsTab::loadModGroups()
 {
-    this->modGroupsTreeWidget->blockSignals(true);
     this->modGroupsTreeWidget->clear();
 
     QVariant modGroupsSettings = this->settings->get(MODGROUPS_KEY);
@@ -97,22 +108,41 @@ void ModsTab::loadModGroups()
         return;
     }
 
+    this->modGroupsTreeWidget->blockSignals(true);
     QJsonObject jsonObject = jsonDocument.object();
     for (auto &key : jsonObject.keys()) {
         QJsonValue jsonValue = jsonObject.value(key);
-        if (!jsonValue.isArray()) {
+        if (!jsonValue.isObject()) {
+            continue;
+        }
+
+        QJsonObject folderObject = jsonValue.toObject();
+        if (!folderObject.contains(MODGROUPS_ISEXPANDED_KEY) || !folderObject.contains(MODGROUPS_MODS_KEY)) {
+            continue;
+        }
+
+        QJsonValue isExpandedJsonValue = folderObject.value(MODGROUPS_ISEXPANDED_KEY);
+        if (!isExpandedJsonValue.isBool()) {
+            continue;
+        }
+
+        QJsonValue modsJsonValue = folderObject.value(MODGROUPS_MODS_KEY);
+        if (!modsJsonValue.isArray()) {
             continue;
         }
 
         ModGroupsTreeWidgetItem *folderItem = this->modGroupsTreeWidget->addFolder(key);
+        folderItem->setExpanded(isExpandedJsonValue.toBool());
 
-        QJsonArray values = jsonValue.toArray();
-        for (auto value : values) {
-            if (!value.isObject()) {
+        bool hasChecked = false;
+        bool hasUnchecked = false;
+        QJsonArray mods = modsJsonValue.toArray();
+        for (auto mod : mods) {
+            if (!mod.isObject()) {
                 continue;
             }
 
-            QJsonObject valueObject = value.toObject();
+            QJsonObject valueObject = mod.toObject();
             if (!(valueObject.contains(MODGROUPS_ISCHECKED_KEY)) || !(valueObject.contains(MODGROUPS_PATH_KEY))) {
                 continue;
             }
@@ -134,7 +164,10 @@ void ModsTab::loadModGroups()
             }
 
             if (isCheckedJsonValue.toBool()) {
+                hasChecked = true;
                 item->setCheckState(Qt::Checked);
+            } else {
+                hasUnchecked = true;
             }
 
             if (!this->availableModsTreeWidget->hasItem(Util::getFilename(path), QVariant(path), 0)) {
@@ -142,10 +175,19 @@ void ModsTab::loadModGroups()
                 continue;
             }
         }
-    }
 
-    this->modGroupsTreeWidget->doSort();
+        if (hasChecked && hasUnchecked) {
+            folderItem->setCheckState(Qt::PartiallyChecked);
+        } else if (hasChecked) {
+            Q_ASSERT(!hasUnchecked);
+            folderItem->setCheckState(Qt::Checked);
+        } else {
+            Q_ASSERT(!hasChecked);
+            folderItem->setCheckState(Qt::Unchecked);
+        }
+    }
     this->modGroupsTreeWidget->blockSignals(false);
+    this->modGroupsTreeWidget->doSort();
 }
 
 void ModsTab::modGroupsTreeChangedHandler()
@@ -155,5 +197,75 @@ void ModsTab::modGroupsTreeChangedHandler()
 
 void ModsTab::modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem *item)
 {
-    qDebug() << item->text(0);
+    if (item->isFolder()) {
+        this->modGroupsTreeWidget->blockSignals(true);
+        for (int i = 0; i < item->childCount(); i += 1) {
+            ModGroupsTreeWidgetItem *childItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(item->child(i));
+            if (childItem == nullptr) {
+                continue;
+            }
+
+            childItem->setCheckState(item->checkState(0));
+        }
+        this->modGroupsTreeWidget->blockSignals(false);
+
+        return;
+    }
+
+    ModGroupsTreeWidgetItem *parentItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(item->parent());
+    if (parentItem == nullptr || parentItem->parent() != nullptr) {
+        return;
+    }
+
+    this->modGroupsTreeWidget->blockSignals(true);
+    if (parentItem->haveAllChildrenChecked()) {
+        parentItem->setCheckState(Qt::Checked);
+    } else if (parentItem->getChildrenCheckedCount() > 0) {
+        parentItem->setCheckState(Qt::PartiallyChecked);
+    } else {
+        parentItem->setCheckState(Qt::Unchecked);
+    }
+    this->modGroupsTreeWidget->blockSignals(false);
+}
+
+void ModsTab::availableModsExpandAllCheckBoxStateChanged(int state)
+{
+    if (state == Qt::Checked) {
+        this->availableModsTreeWidget->expandAll();
+        return;
+    }
+
+    this->availableModsTreeWidget->collapseAll();
+}
+
+void ModsTab::modGroupsExpandAllCheckBoxStateChanged(int state)
+{
+    if (state == Qt::Checked) {
+        this->modGroupsTreeWidget->expandAll();
+        return;
+    }
+
+    this->modGroupsTreeWidget->collapseAll();
+}
+
+void ModsTab::modGroupsSelectAllCheckBoxStateChanged(int state)
+{
+    this->modGroupsTreeWidget->blockSignals(true);
+    QTreeWidgetItemIterator it(this->modGroupsTreeWidget);
+    while (*it) {
+        ModGroupsTreeWidgetItem *item = ModGroupsTreeWidgetItem::castTreeWidgetItem(*it);
+        if (item != nullptr) {
+            item->setCheckState(Qt::CheckState(state));
+        }
+
+        ++it;
+    }
+    this->modGroupsTreeWidget->blockSignals(false);
+
+    this->settings->save();
+}
+
+void ModsTab::refreshPushButtonClicked(bool checked)
+{
+    refreshMods();
 }

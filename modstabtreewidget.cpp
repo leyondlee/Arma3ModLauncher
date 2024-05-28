@@ -38,6 +38,30 @@ void ModsTabTreeWidget::doSort()
     this->sortItems(0, Qt::AscendingOrder);
 }
 
+void ModsTabTreeWidget::expandAll()
+{
+    for (int i = 0; i < this->topLevelItemCount(); i += 1) {
+        QTreeWidgetItem *item = this->topLevelItem(i);
+        if (item == nullptr) {
+            continue;
+        }
+
+        item->setExpanded(true);
+    }
+}
+
+void ModsTabTreeWidget::collapseAll()
+{
+    for (int i = 0; i < this->topLevelItemCount(); i += 1) {
+        QTreeWidgetItem *item = this->topLevelItem(i);
+        if (item == nullptr) {
+            continue;
+        }
+
+        item->setExpanded(false);
+    }
+}
+
 bool ModsTabTreeWidget::isItemDraggable(QTreeWidgetItem *item)
 {
     if (item == nullptr) {

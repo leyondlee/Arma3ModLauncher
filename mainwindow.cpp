@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->tabWidget = ui->tabWidget;
     this->settings = new Settings(this);
     this->modsTab = new ModsTab(ui->modsTab, this->settings);
-    this->optionsTab = new OptionsTab(ui->optionsTab, this->settings);
+    this->optionsTab = new OptionsTab(ui->optionsTab, this->modsTab, this->settings);
 
     connect(this->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabWidgetCurrentChangedHandler);
     connect(QApplication::instance(), &QApplication::aboutToQuit, this, &MainWindow::applicationAboutToQuitHandler);

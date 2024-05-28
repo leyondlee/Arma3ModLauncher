@@ -24,6 +24,8 @@ public:
     QTreeWidgetItem *getItem(QString text, QVariant data, int column);
     bool hasItem(QString text, QVariant data, int column);
     void doSort();
+    void expandAll();
+    void collapseAll();
 
 private:
     Qt::DropAction dropAction;

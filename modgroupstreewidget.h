@@ -28,7 +28,8 @@ private:
     void customContextMenuRequestedHandler(QPoint pos);
     void itemChangedHandler(QTreeWidgetItem *item, int column);
     void addFolderActionTriggered(bool checked);
-    void deleteActionTriggered(bool checked);
+    void renameActionTriggered(bool checked);
+    void removeActionTriggered(bool checked);
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;

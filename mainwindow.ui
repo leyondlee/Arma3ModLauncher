@@ -34,7 +34,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QPushButton" name="refreshPushButton">
+              <widget class="QPushButton" name="refreshModsPushButton">
                <property name="text">
                 <string>Refresh</string>
                </property>
@@ -152,7 +152,7 @@
             <widget class="QLineEdit" name="arma3ExecutableLineEdit"/>
            </item>
            <item>
-            <widget class="QPushButton" name="arma3ExecutablePushButton">
+            <widget class="QPushButton" name="browseArma3ExecutablePushButton">
              <property name="text">
               <string>Browse</string>
              </property>
@@ -172,7 +172,7 @@
              <item>
               <widget class="QCheckBox" name="skipIntroCheckBox">
                <property name="text">
-                <string>Show static background in menu</string>
+                <string>Skip Intro</string>
                </property>
               </widget>
              </item>
@@ -299,7 +299,7 @@
              <item>
               <widget class="QPushButton" name="modFoldersAddPushButton">
                <property name="text">
-                <string>Add Folder</string>
+                <string>Add</string>
                </property>
               </widget>
              </item>

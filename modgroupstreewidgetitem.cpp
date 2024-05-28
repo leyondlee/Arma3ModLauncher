@@ -69,3 +69,22 @@ void ModGroupsTreeWidgetItem::updateSavedCheckState()
 {
     this->savedCheckState = this->checkState(0);
 }
+
+int ModGroupsTreeWidgetItem::getChildrenCheckedCount()
+{
+    int count = 0;
+    for (int i = 0; i < this->childCount(); i += 1) {
+        if (this->child(i)->checkState(0) != Qt::Checked) {
+            continue;
+        }
+
+        count += 1;
+    }
+
+    return count;
+}
+
+bool ModGroupsTreeWidgetItem::haveAllChildrenChecked()
+{
+    return getChildrenCheckedCount() == this->childCount();
+}

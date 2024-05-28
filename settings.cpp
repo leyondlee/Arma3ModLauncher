@@ -72,7 +72,10 @@ QString Settings::getModGroupsJson()
             values.append(value);
         }
 
-        jsonObject.insert(data.toString(), values);
+        QJsonObject folderObject;
+        folderObject.insert(MODGROUPS_ISEXPANDED_KEY, item->isExpanded());
+        folderObject.insert(MODGROUPS_MODS_KEY, values);
+        jsonObject.insert(data.toString(), folderObject);
     }
 
     return QString(QJsonDocument(jsonObject).toJson(QJsonDocument::Compact));

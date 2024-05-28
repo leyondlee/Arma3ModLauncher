@@ -26,42 +26,33 @@ ModGroupsTreeWidgetItem *ModGroupsTreeWidget::addFolder(QString name)
 
 void ModGroupsTreeWidget::customContextMenuRequestedHandler(QPoint pos)
 {
+    QMenu *menu = new QMenu(this);
+
+    QAction *addFolderAction = new QAction("Add Folder", menu);
+    menu->addAction(addFolderAction);
+    connect(addFolderAction, &QAction::triggered, this, &ModGroupsTreeWidget::addFolderActionTriggered);
+
+    QAction *renameAction = new QAction("Rename", menu);
+    menu->addAction(renameAction);
+    connect(renameAction, &QAction::triggered, this, &ModGroupsTreeWidget::renameActionTriggered);
+
+    QAction *removeAction = new QAction("Remove", menu);
+    menu->addAction(removeAction);
+    connect(removeAction, &QAction::triggered, this, &ModGroupsTreeWidget::removeActionTriggered);
+
     QTreeWidgetItem *item = this->itemAt(pos);
     if (item == nullptr) {
         this->clearSelection();
+        removeAction->setEnabled(false);
+    } else {
+        item->setSelected(true);
 
-        QMenu *menu = new QMenu(this);
-        QAction *addFolderAction = new QAction("Add Folder", menu);
-        menu->addAction(addFolderAction);
-        connect(addFolderAction, &QAction::triggered, this, &ModGroupsTreeWidget::addFolderActionTriggered);
-        menu->exec(this->mapToGlobal(pos));
-
-        return;
+        ModGroupsTreeWidgetItem *castedItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(item);
+        if (castedItem == nullptr || !castedItem->isFolder() || this->selectedItems().size() > 1) {
+            renameAction->setEnabled(false);
+        }
     }
 
-    item->setSelected(true);
-
-    /*QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
-    for (auto selectedItem : selectedItems) {
-        ModGroupsTreeWidgetItem *castedSelectedItem = ModGroupsTreeWidgetItem::castToModGroupsTreeWidgetItem(selectedItem);
-        if (castedSelectedItem == nullptr || !castedSelectedItem->isFolder()) {
-            continue;
-        }
-
-        for (int i = 0; i < selectedItem->childCount(); i += 1) {
-            QTreeWidgetItem *childItem = selectedItem->child(i);
-            if (childItem == nullptr) {
-                continue;
-            }
-
-            childItem->setSelected(true);
-        }
-    }*/
-
-    QMenu *menu = new QMenu(this);
-    QAction *deleteAction = new QAction("Delete", menu);
-    menu->addAction(deleteAction);
-    connect(deleteAction, &QAction::triggered, this, &ModGroupsTreeWidget::deleteActionTriggered);
     menu->exec(this->mapToGlobal(pos));
 }
 
@@ -93,17 +84,57 @@ void ModGroupsTreeWidget::addFolderActionTriggered(bool checked)
     }
 
     if (this->hasItem(name, QVariant(name), 0)) {
-        QMessageBox messageBox(QMessageBox::Warning, "Warning", "Folder already exists.", QMessageBox::NoButton, this);
+        QMessageBox messageBox(QMessageBox::Warning, "Warning", "Folder with the name already exists.", QMessageBox::NoButton, this);
         messageBox.exec();
         return;
     }
 
-    addFolder(name);
+    ModGroupsTreeWidgetItem *folderItem = addFolder(name);
+    this->clearSelection();
+    folderItem->setSelected(true);
 
     emit treeChangedSignal();
 }
 
-void ModGroupsTreeWidget::deleteActionTriggered(bool checked)
+void ModGroupsTreeWidget::renameActionTriggered(bool checked)
+{
+    if (this->selectedItems().size() > 1) {
+        return;
+    }
+
+    QTreeWidgetItem *item = this->currentItem();
+    if (item == nullptr) {
+        return;
+    }
+
+    ModGroupsTreeWidgetItem *castedItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(item);
+    if (castedItem == nullptr || !castedItem->isFolder()) {
+        return;
+    }
+
+    QString name = item->text(0);
+
+    bool ok;
+    QString newName = QInputDialog::getText(this, tr("Rename Folder"), tr("Name:"), QLineEdit::Normal, name, &ok);
+    if (!ok || newName.isEmpty() || QString::compare(newName, name) == 0) {
+        return;
+    }
+
+    if (this->hasItem(newName, QVariant(newName), 0)) {
+        QMessageBox messageBox(QMessageBox::Warning, "Warning", "Folder with the name already exists.", QMessageBox::NoButton, this);
+        messageBox.exec();
+        return;
+    }
+
+    item->setText(0, newName);
+    item->setData(0, Qt::UserRole, QVariant(newName));
+
+    this->doSort();
+
+    emit treeChangedSignal();
+}
+
+void ModGroupsTreeWidget::removeActionTriggered(bool checked)
 {
     QList<QTreeWidgetItem *> itemsToDelete;
 
