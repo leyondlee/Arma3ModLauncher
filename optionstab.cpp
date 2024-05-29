@@ -67,11 +67,10 @@ void OptionsTab::initParameterCheckBoxes()
 void OptionsTab::loadArma3Executable()
 {
     QJsonValue arma3ExecutableSetting = this->settings->get(ARMA3EXECUTABLE_KEY);
-    QString arma3Executable;
     if (arma3ExecutableSetting.isNull() || !arma3ExecutableSetting.isString()) {
         QString detectedArma3Folder = getDetectedArma3Folder();
         if (!detectedArma3Folder.isEmpty()) {
-            arma3Executable = Util::joinPaths(QStringList({detectedArma3Folder, ARMA3_EXECUTABLE}));
+            QString arma3Executable = Util::joinPaths(QStringList({detectedArma3Folder, ARMA3_EXECUTABLE}));
             setArma3Executable(arma3Executable);
 
             QString workshopPath = Util::joinPaths(QStringList({detectedArma3Folder, WORKSHOP_FOLDER}));
@@ -85,8 +84,7 @@ void OptionsTab::loadArma3Executable()
     }
 
     Q_ASSERT(arma3ExecutableSetting.isString());
-    arma3Executable = arma3ExecutableSetting.toString();
-    setArma3Executable(arma3Executable);
+    setArma3Executable(arma3ExecutableSetting.toString());
 }
 
 void OptionsTab::loadParameters()
@@ -114,27 +112,6 @@ void OptionsTab::loadParameters()
         } else {
             checkBox->setCheckState(Qt::Unchecked);
         }
-        checkBox->blockSignals(false);
-    }
-
-
-    for (auto value : parametersArray) {
-        if (!value.isString()) {
-            continue;
-        }
-
-        QString parameter = value.toString();
-        if (!parameterCheckBoxMap.contains(parameter)) {
-            continue;
-        }
-
-        QCheckBox *checkBox = this->parametersGroupBox->findChild<QCheckBox *>(parameterCheckBoxMap.value(parameter));
-        if (checkBox == nullptr) {
-            continue;
-        }
-
-        checkBox->blockSignals(true);
-        checkBox->setCheckState(Qt::Checked);
         checkBox->blockSignals(false);
     }
 }
