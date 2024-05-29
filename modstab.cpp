@@ -39,13 +39,19 @@ void ModsTab::loadAvailableMods()
 {
     this->availableModsTreeWidget->clear();
 
-    QVariant modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
-    if (modFoldersSettings.isNull() || !modFoldersSettings.canConvert<QStringList>()) {
+    QJsonValue modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
+    if (modFoldersSettings.isNull() || !modFoldersSettings.isArray()) {
         return;
     }
 
+    QJsonArray modsFoldersArray = modFoldersSettings.toArray();
     QStringList modFolders;
-    for (auto &folder : modFoldersSettings.toStringList()) {
+    for (auto folderValue : modsFoldersArray) {
+        if (!folderValue.isString()) {
+            continue;
+        }
+
+        QString folder = folderValue.toString();
         if (modFolders.contains(folder)) {
             continue;
         }
@@ -98,13 +104,13 @@ void ModsTab::loadModGroups()
 {
     this->modGroupsTreeWidget->clear();
 
-    QVariant modGroupsSettings = this->settings->get(MODGROUPS_KEY);
-    if (modGroupsSettings.isNull() || !modGroupsSettings.canConvert<QJsonObject>()) {
+    QJsonValue modGroupsSettings = this->settings->get(MODGROUPS_KEY);
+    if (modGroupsSettings.isNull() || !modGroupsSettings.isObject()) {
         return;
     }
 
     this->modGroupsTreeWidget->blockSignals(true);
-    QJsonObject jsonObject = modGroupsSettings.toJsonObject();
+    QJsonObject jsonObject = modGroupsSettings.toObject();
     for (auto &key : jsonObject.keys()) {
         QJsonValue jsonValue = jsonObject.value(key);
         if (!jsonValue.isObject()) {

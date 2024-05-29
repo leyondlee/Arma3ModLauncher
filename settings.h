@@ -33,7 +33,7 @@ public:
     explicit Settings(QMainWindow *mainWindow);
 
     void save();
-    QVariant get(QString key);
+    QJsonValue get(QString key);
 
 private:
     QLineEdit *arma3ExecutableLineEdit;

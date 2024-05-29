@@ -24,25 +24,25 @@ void Settings::save()
     saveFile.write(QJsonDocument(jsonObject).toJson());
 }
 
-QVariant Settings::get(QString key)
+QJsonValue Settings::get(QString key)
 {
     if (!QFile::exists(this->saveFilename)) {
-        return QVariant();
+        return QJsonValue();
     }
 
     QFile saveFile(this->saveFilename);
     if (!saveFile.open(QIODevice::ReadOnly)) {
-        return QVariant();
+        return QJsonValue();
     }
 
     QByteArray saveData = saveFile.readAll();
     QJsonDocument jsonDocument = QJsonDocument::fromJson(saveData);
     QJsonObject jsonObject = jsonDocument.object();
     if (!jsonObject.contains(key)) {
-        return QVariant();
+        return QJsonValue();
     }
 
-    return jsonObject.value(key).toVariant();
+    return jsonObject.value(key);
 }
 
 QJsonArray Settings::getModFolders()

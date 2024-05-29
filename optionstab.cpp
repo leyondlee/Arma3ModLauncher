@@ -20,23 +20,28 @@ void OptionsTab::tabChanged()
 
 void OptionsTab::init()
 {
-    QVariant modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
-    if (!modFoldersSettings.isNull() && modFoldersSettings.canConvert<QStringList>()) {
-        QStringList modFolders = modFoldersSettings.toStringList();
-        for (auto &folder : modFolders) {
+    QJsonValue modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
+    if (!modFoldersSettings.isNull() && modFoldersSettings.isArray()) {
+        QJsonArray modFoldersArray = modFoldersSettings.toArray();
+        for (auto folderValue : modFoldersArray) {
+            if (!folderValue.isString()) {
+                continue;
+            }
+
+            QString folder = folderValue.toString();
             if (hasModFolder(folder)) {
                 continue;
             }
 
-            insertIntoModFoldersListWidget(folder);
+            insertIntoModFoldersList(folder);
         }
     }
 
     this->arma3ExecutableLineEdit->setReadOnly(true);
 
-    QVariant arma3ExecutableSetting = this->settings->get(ARMA3EXECUTABLE_KEY);
+    QJsonValue arma3ExecutableSetting = this->settings->get(ARMA3EXECUTABLE_KEY);
     QString arma3Executable;
-    if (arma3ExecutableSetting.isNull() || !arma3ExecutableSetting.canConvert<QString>()) {
+    if (arma3ExecutableSetting.isNull() || !arma3ExecutableSetting.isString()) {
         QString detectedArma3Folder = getDetectedArma3Folder();
         if (!detectedArma3Folder.isEmpty()) {
             arma3Executable = Util::joinPaths(QStringList({detectedArma3Folder, ARMA3_EXECUTABLE}));
@@ -44,13 +49,14 @@ void OptionsTab::init()
 
             QString workshopPath = Util::joinPaths(QStringList({detectedArma3Folder, WORKSHOP_FOLDER}));
             if (!hasModFolder(workshopPath)) {
-                insertIntoModFoldersListWidget(workshopPath, 0);
+                insertIntoModFoldersList(workshopPath, 0);
             }
 
             this->settings->save();
             this->modsTab->refreshMods();
         }
     } else {
+        Q_ASSERT(arma3ExecutableSetting.isString());
         arma3Executable = arma3ExecutableSetting.toString();
         setArma3Executable(arma3Executable);
     }
@@ -108,7 +114,7 @@ void OptionsTab::modFoldersAddPushButtonClicked(bool checked)
         return;
     }
 
-    insertIntoModFoldersListWidget(folder);
+    insertIntoModFoldersList(folder);
     this->settings->save();
     this->modsTab->refreshMods();
 }
@@ -134,8 +140,9 @@ QString OptionsTab::getDetectedArma3Folder()
 
 void OptionsTab::setArma3Executable(QString path)
 {
-    this->arma3ExecutableLineEdit->setText(path);
-    this->arma3ExecutableLineEdit->setToolTip(path);
+    QString cleanPath = Util::cleanPath(path);
+    this->arma3ExecutableLineEdit->setText(cleanPath);
+    this->arma3ExecutableLineEdit->setToolTip(cleanPath);
     this->arma3ExecutableLineEdit->setCursorPosition(0);
 }
 
@@ -151,15 +158,15 @@ bool OptionsTab::hasModFolder(QString folder)
     return false;
 }
 
-void OptionsTab::insertIntoModFoldersListWidget(QString text, int row)
+void OptionsTab::insertIntoModFoldersList(QString path, int row)
 {
-    QString path = Util::cleanPath(text);
+    QString cleanPath = Util::cleanPath(path);
 
     QListWidgetItem *item = new QListWidgetItem();
-    item->setText(path);
-    item->setToolTip(path);
+    item->setText(cleanPath);
+    item->setToolTip(cleanPath);
 
-    if (row == -1) {
+    if (row <= -1) {
         this->modFoldersListWidget->addItem(item);
         return;
     }

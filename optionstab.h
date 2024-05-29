@@ -42,7 +42,7 @@ private:
     QString getDetectedArma3Folder();
     void setArma3Executable(QString path);
     bool hasModFolder(QString folder);
-    void insertIntoModFoldersListWidget(QString text, int row = -1);
+    void insertIntoModFoldersList(QString text, int row = -1);
 
 signals:
 };
