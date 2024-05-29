@@ -18,6 +18,8 @@ void ModGroupsTreeWidget::setAvailableModsTreeWidget(AvailableModsTreeWidget *av
 ModGroupsTreeWidgetItem *ModGroupsTreeWidget::addFolder(QString name)
 {
     ModGroupsTreeWidgetItem *folderItem = new ModGroupsTreeWidgetItem(name, QVariant(name), true);
+    folderItem->setFlags(folderItem->flags() & ~Qt::ItemIsDragEnabled);
+
     this->addTopLevelItem(folderItem);
     this->doSort();
 
@@ -84,7 +86,7 @@ void ModGroupsTreeWidget::addFolderActionTriggered(bool checked)
     }
 
     if (this->hasItem(name, QVariant(name), 0)) {
-        QMessageBox messageBox(QMessageBox::Warning, "Warning", "Folder with the name already exists.", QMessageBox::NoButton, this);
+        QMessageBox messageBox(QMessageBox::Warning, "Add Folder", "Folder with the name already exists.", QMessageBox::NoButton, this);
         messageBox.exec();
         return;
     }
@@ -121,7 +123,7 @@ void ModGroupsTreeWidget::renameActionTriggered(bool checked)
     }
 
     if (this->hasItem(newName, QVariant(newName), 0)) {
-        QMessageBox messageBox(QMessageBox::Warning, "Warning", "Folder with the name already exists.", QMessageBox::NoButton, this);
+        QMessageBox messageBox(QMessageBox::Warning, "Rename Folder", "Folder with the name already exists.", QMessageBox::NoButton, this);
         messageBox.exec();
         return;
     }

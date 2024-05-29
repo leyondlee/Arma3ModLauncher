@@ -152,7 +152,7 @@
             <widget class="QLineEdit" name="arma3ExecutableLineEdit"/>
            </item>
            <item>
-            <widget class="QPushButton" name="browseArma3ExecutablePushButton">
+            <widget class="QPushButton" name="arma3ExecutableBrowsePushButton">
              <property name="text">
               <string>Browse</string>
              </property>

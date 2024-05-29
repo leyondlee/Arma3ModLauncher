@@ -4,6 +4,7 @@ Settings::Settings(QMainWindow *mainWindow)
     : QObject{mainWindow}
 {
     this->arma3ExecutableLineEdit = mainWindow->findChild<QLineEdit *>("arma3ExecutableLineEdit");
+    this->additionalParametersListWidget = mainWindow->findChild<QListWidget *>("additionalParametersListWidget");
     this->modFoldersListWidget = mainWindow->findChild<QListWidget *>("modFoldersListWidget");
     this->modGroupsTreeWidget = mainWindow->findChild<QTreeWidget *>("modGroupsTreeWidget");
     this->saveFilename = QString("%1.json").arg(Util::joinPaths({QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), QApplication::applicationName()}));
@@ -18,8 +19,9 @@ void Settings::save()
 
     QJsonObject jsonObject;
     jsonObject.insert(ARMA3EXECUTABLE_KEY, this->arma3ExecutableLineEdit->text());
-    jsonObject.insert(MODFOLDERS_KEY, getModFolders());
-    jsonObject.insert(MODGROUPS_KEY, getModGroups());
+    jsonObject.insert(ADDITIONALPARAMETERS_KEY, getAdditionalParametersSave());
+    jsonObject.insert(MODFOLDERS_KEY, getModFoldersSave());
+    jsonObject.insert(MODGROUPS_KEY, getModGroupsSave());
 
     saveFile.write(QJsonDocument(jsonObject).toJson());
 }
@@ -45,11 +47,27 @@ QJsonValue Settings::get(QString key)
     return jsonObject.value(key);
 }
 
-QJsonArray Settings::getModFolders()
+QJsonArray Settings::getAdditionalParametersSave()
+{
+    QJsonArray additionalParameters;
+    for (int i = 0; i < this->additionalParametersListWidget->count(); i += 1) {
+        QListWidgetItem *item = this->additionalParametersListWidget->item(i);
+        QString value = item->text();
+        if (additionalParameters.contains(value)) {
+            continue;
+        }
+
+        additionalParameters.append(value);
+    }
+
+    return additionalParameters;
+}
+
+QJsonArray Settings::getModFoldersSave()
 {
     QJsonArray modFolders;
-    for (int i = 0; i < modFoldersListWidget->count(); i += 1) {
-        QListWidgetItem *item = modFoldersListWidget->item(i);
+    for (int i = 0; i < this->modFoldersListWidget->count(); i += 1) {
+        QListWidgetItem *item = this->modFoldersListWidget->item(i);
         QString folder = item->text();
         if (modFolders.contains(folder)) {
             continue;
@@ -61,7 +79,7 @@ QJsonArray Settings::getModFolders()
     return modFolders;
 }
 
-QJsonObject Settings::getModGroups()
+QJsonObject Settings::getModGroupsSave()
 {
     QJsonObject jsonObject;
     for (int i = 0; i < this->modGroupsTreeWidget->topLevelItemCount(); i += 1) {

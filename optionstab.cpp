@@ -6,9 +6,11 @@ OptionsTab::OptionsTab(QWidget *optionsTab, ModsTab *modsTab, Settings *settings
     this->modsTab = modsTab;
     this->settings = settings;
     this->arma3ExecutableLineEdit = optionsTab->findChild<QLineEdit *>("arma3ExecutableLineEdit");
+    this->arma3ExecutableBrowsePushButton = optionsTab->findChild<QPushButton *>("arma3ExecutableBrowsePushButton");
+    this->additionalParametersListWidget = optionsTab->findChild<QListWidget *>("additionalParametersListWidget");
+    this->additionalParametersAddPushButton = optionsTab->findChild<QPushButton *>("additionalParametersAddPushButton");
     this->modFoldersListWidget = optionsTab->findChild<QListWidget *>("modFoldersListWidget");
     this->modFoldersAddPushButton = optionsTab->findChild<QPushButton *>("modFoldersAddPushButton");
-    this->browseArma3ExecutablePushButton = optionsTab->findChild<QPushButton *>("browseArma3ExecutablePushButton");
 
     init();
 }
@@ -16,29 +18,30 @@ OptionsTab::OptionsTab(QWidget *optionsTab, ModsTab *modsTab, Settings *settings
 void OptionsTab::tabChanged()
 {
     this->arma3ExecutableLineEdit->setCursorPosition(0);
+    this->additionalParametersListWidget->clearSelection();
+    this->modFoldersListWidget->clearSelection();
 }
 
 void OptionsTab::init()
 {
-    QJsonValue modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
-    if (!modFoldersSettings.isNull() && modFoldersSettings.isArray()) {
-        QJsonArray modFoldersArray = modFoldersSettings.toArray();
-        for (auto folderValue : modFoldersArray) {
-            if (!folderValue.isString()) {
-                continue;
-            }
-
-            QString folder = folderValue.toString();
-            if (hasModFolder(folder)) {
-                continue;
-            }
-
-            insertIntoModFoldersList(folder);
-        }
-    }
-
     this->arma3ExecutableLineEdit->setReadOnly(true);
+    this->additionalParametersListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    this->additionalParametersListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    this->modFoldersListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
+    connect(this->arma3ExecutableBrowsePushButton, &QPushButton::clicked, this, &OptionsTab::arma3ExecutableBrowsePushButtonClicked);
+    connect(this->additionalParametersListWidget, &QListWidget::customContextMenuRequested, this, &OptionsTab::additionalParametersListWidgetCustomContextMenuRequestedHandler);
+    connect(this->additionalParametersAddPushButton, &QPushButton::clicked, this, &OptionsTab::additionalParametersAddPushButtonClicked);
+    connect(this->modFoldersListWidget, &QListWidget::customContextMenuRequested, this, &OptionsTab::modFoldersListWidgetCustomContextMenuRequestedHandler);
+    connect(this->modFoldersAddPushButton, &QPushButton::clicked, this, &OptionsTab::modFoldersAddPushButtonClicked);
+
+    loadArma3Executable();
+    loadAdditionalParameters();
+    loadModFolders();
+}
+
+void OptionsTab::loadArma3Executable()
+{
     QJsonValue arma3ExecutableSetting = this->settings->get(ARMA3EXECUTABLE_KEY);
     QString arma3Executable;
     if (arma3ExecutableSetting.isNull() || !arma3ExecutableSetting.isString()) {
@@ -48,23 +51,122 @@ void OptionsTab::init()
             setArma3Executable(arma3Executable);
 
             QString workshopPath = Util::joinPaths(QStringList({detectedArma3Folder, WORKSHOP_FOLDER}));
-            if (!hasModFolder(workshopPath)) {
-                insertIntoModFoldersList(workshopPath, 0);
-            }
+            addToModFoldersList(workshopPath, 0);
 
             this->settings->save();
             this->modsTab->refreshMods();
         }
-    } else {
-        Q_ASSERT(arma3ExecutableSetting.isString());
-        arma3Executable = arma3ExecutableSetting.toString();
-        setArma3Executable(arma3Executable);
+
+        return;
     }
 
-    this->modFoldersListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this->modFoldersListWidget, &QListWidget::customContextMenuRequested, this, &OptionsTab::modFoldersListWidgetCustomContextMenuRequestedHandler);
-    connect(this->modFoldersAddPushButton, &QPushButton::clicked, this, &OptionsTab::modFoldersAddPushButtonClicked);
-    connect(this->browseArma3ExecutablePushButton, &QPushButton::clicked, this, &OptionsTab::browseArma3ExecutablePushButtonClicked);
+    Q_ASSERT(arma3ExecutableSetting.isString());
+    arma3Executable = arma3ExecutableSetting.toString();
+    setArma3Executable(arma3Executable);
+}
+
+void OptionsTab::loadAdditionalParameters()
+{
+    QJsonValue additionalParametersSettings = this->settings->get(ADDITIONALPARAMETERS_KEY);
+    if (additionalParametersSettings.isNull() || !additionalParametersSettings.isArray()) {
+        return;
+    }
+
+    QJsonArray additionalParametersArray = additionalParametersSettings.toArray();
+    for (auto value : additionalParametersArray) {
+        if (!value.isString()) {
+            continue;
+        }
+
+        addToAdditionalParametersList(value.toString());
+    }
+}
+
+void OptionsTab::loadModFolders()
+{
+    QJsonValue modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
+    if (modFoldersSettings.isNull() || !modFoldersSettings.isArray()) {
+        return;
+    }
+
+    QJsonArray modFoldersArray = modFoldersSettings.toArray();
+    for (auto folderValue : modFoldersArray) {
+        if (!folderValue.isString()) {
+            continue;
+        }
+
+        addToModFoldersList(folderValue.toString());
+    }
+}
+
+void OptionsTab::arma3ExecutableBrowsePushButtonClicked(bool checked)
+{
+    QString filename = QFileDialog::getOpenFileName(this->arma3ExecutableBrowsePushButton, "Select Arma 3 Executable", QString(), tr("Executable Files (*.exe)"));
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    setArma3Executable(filename);
+    this->settings->save();
+}
+
+void OptionsTab::additionalParametersListWidgetCustomContextMenuRequestedHandler(QPoint pos)
+{
+    QListWidgetItem *item = this->additionalParametersListWidget->itemAt(pos);
+    if (item == nullptr) {
+        return;
+    }
+
+    if (!this->additionalParametersListWidget->selectedItems().contains(item)) {
+        this->additionalParametersListWidget->clearSelection();
+        item->setSelected(true);
+    }
+
+    QMenu *menu = new QMenu(this->additionalParametersListWidget);
+    QAction *removeAction = new QAction("Remove", menu);
+    menu->addAction(removeAction);
+    connect(removeAction, &QAction::triggered, this, &OptionsTab::additionalParametersRemoveActionTriggered);
+
+    menu->exec(this->additionalParametersListWidget->mapToGlobal(pos));
+}
+
+void OptionsTab::additionalParametersRemoveActionTriggered(bool checked)
+{
+    QList<QListWidgetItem *> selectedItems = this->additionalParametersListWidget->selectedItems();
+    if (selectedItems.isEmpty()) {
+        return;
+    }
+
+    for (auto item : selectedItems) {
+        int index = this->additionalParametersListWidget->row(item);
+        if (index < 0) {
+            continue;
+        }
+
+        QListWidgetItem *itemTaken = this->additionalParametersListWidget->takeItem(index);
+        Q_ASSERT(itemTaken == item);
+
+        delete itemTaken;
+    }
+
+    this->settings->save();
+}
+
+void OptionsTab::additionalParametersAddPushButtonClicked(bool checked)
+{
+    bool ok;
+    QString value = QInputDialog::getMultiLineText(this->additionalParametersAddPushButton, tr("Add Parameter"), tr("Value:"), tr(""), &ok);
+    if (!ok || value.isEmpty()) {
+        return;
+    }
+
+    if (!addToAdditionalParametersList(value)) {
+        QMessageBox messageBox(QMessageBox::Warning, "Add Parameter", "Value already exists.", QMessageBox::NoButton, this->additionalParametersAddPushButton);
+        messageBox.exec();
+        return;
+    }
+
+    this->settings->save();
 }
 
 void OptionsTab::modFoldersListWidgetCustomContextMenuRequestedHandler(QPoint pos)
@@ -81,24 +183,24 @@ void OptionsTab::modFoldersListWidgetCustomContextMenuRequestedHandler(QPoint po
     QMenu *menu = new QMenu(this->modFoldersListWidget);
     QAction *removeAction = new QAction("Remove", menu);
     menu->addAction(removeAction);
-    connect(removeAction, &QAction::triggered, this, &OptionsTab::modFoldersListWidgetRemoveActionTriggered);
+    connect(removeAction, &QAction::triggered, this, &OptionsTab::modFoldersRemoveActionTriggered);
 
     menu->exec(this->modFoldersListWidget->mapToGlobal(pos));
 }
 
-void OptionsTab::modFoldersListWidgetRemoveActionTriggered(bool checked)
+void OptionsTab::modFoldersRemoveActionTriggered(bool checked)
 {
     QListWidgetItem *item = this->modFoldersListWidget->currentItem();
     if (item == nullptr) {
         return;
     }
 
-    QModelIndex index = this->modFoldersListWidget->indexFromItem(item);
-    if (!index.isValid()) {
+    int index = this->modFoldersListWidget->row(item);
+    if (index < 0) {
         return;
     }
 
-    QListWidgetItem *itemTaken = this->modFoldersListWidget->takeItem(index.row());
+    QListWidgetItem *itemTaken = this->modFoldersListWidget->takeItem(index);
     Q_ASSERT(itemTaken == item);
 
     delete itemTaken;
@@ -114,20 +216,14 @@ void OptionsTab::modFoldersAddPushButtonClicked(bool checked)
         return;
     }
 
-    insertIntoModFoldersList(folder);
-    this->settings->save();
-    this->modsTab->refreshMods();
-}
-
-void OptionsTab::browseArma3ExecutablePushButtonClicked(bool checked)
-{
-    QString filename = QFileDialog::getOpenFileName(this->browseArma3ExecutablePushButton, "Select Arma 3 Executable", QString(), tr("Executable Files (*.exe)"));
-    if (filename.isEmpty()) {
+    if (!addToModFoldersList(folder)) {
+        QMessageBox messageBox(QMessageBox::Warning, "Select Mod Folder", "Folder already exists.", QMessageBox::NoButton, this->modFoldersAddPushButton);
+        messageBox.exec();
         return;
     }
 
-    setArma3Executable(filename);
     this->settings->save();
+    this->modsTab->refreshMods();
 }
 
 QString OptionsTab::getDetectedArma3Folder()
@@ -146,10 +242,36 @@ void OptionsTab::setArma3Executable(QString path)
     this->arma3ExecutableLineEdit->setCursorPosition(0);
 }
 
+bool OptionsTab::hasAdditionalParameter(QString value)
+{
+    for (int i = 0; i < this->additionalParametersListWidget->count(); i += 1) {
+        QListWidgetItem *item = this->additionalParametersListWidget->item(i);
+        if (QString::compare(item->text(), value, Qt::CaseSensitive) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool OptionsTab::addToAdditionalParametersList(QString value)
+{
+    if (hasAdditionalParameter(value)) {
+        return false;
+    }
+
+    QListWidgetItem *item = new QListWidgetItem();
+    item->setText(value);
+    item->setToolTip(value);
+    this->additionalParametersListWidget->addItem(item);
+
+    return true;
+}
+
 bool OptionsTab::hasModFolder(QString folder)
 {
-    for (int i = 0; i < modFoldersListWidget->count(); i += 1) {
-        QListWidgetItem *item = modFoldersListWidget->item(i);
+    for (int i = 0; i < this->modFoldersListWidget->count(); i += 1) {
+        QListWidgetItem *item = this->modFoldersListWidget->item(i);
         if (QString::compare(item->text(), folder, Qt::CaseSensitive) == 0) {
             return true;
         }
@@ -158,18 +280,22 @@ bool OptionsTab::hasModFolder(QString folder)
     return false;
 }
 
-void OptionsTab::insertIntoModFoldersList(QString path, int row)
+bool OptionsTab::addToModFoldersList(QString path, int row)
 {
     QString cleanPath = Util::cleanPath(path);
+    if (hasModFolder(cleanPath)) {
+        return false;
+    }
 
     QListWidgetItem *item = new QListWidgetItem();
     item->setText(cleanPath);
     item->setToolTip(cleanPath);
 
-    if (row <= -1) {
+    if (row >= 0) {
+        this->modFoldersListWidget->insertItem(row, item);
+    } else {
         this->modFoldersListWidget->addItem(item);
-        return;
     }
 
-    this->modFoldersListWidget->insertItem(row, item);
+    return true;
 }

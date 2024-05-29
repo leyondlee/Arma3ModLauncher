@@ -61,3 +61,23 @@ void Util::removeTreeWidgetItem(QTreeWidgetItem *item)
 
     return;
 }
+
+bool Util::hasItemInListWidget(QListWidget *listWidget, QString text, QVariant data)
+{
+    if (listWidget == nullptr) {
+        return false;
+    }
+
+    for (int i = 0; i < listWidget->count(); i += 1) {
+        QListWidgetItem *item = listWidget->item(i);
+        if (item == nullptr) {
+            continue;
+        }
+
+        if (QString::compare(item->text(), text) == 0 && item->data(Qt::UserRole) == data) {
+            return true;
+        }
+    }
+
+    return false;
+}

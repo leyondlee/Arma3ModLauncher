@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QMenu>
+#include <QMessageBox>
 
 #include "util.h"
 #include "modstab.h"
@@ -30,19 +31,29 @@ private:
     ModsTab *modsTab;
     Settings *settings;
     QLineEdit *arma3ExecutableLineEdit;
+    QPushButton *arma3ExecutableBrowsePushButton;
+    QListWidget *additionalParametersListWidget;
+    QPushButton *additionalParametersAddPushButton;
     QListWidget *modFoldersListWidget;
     QPushButton *modFoldersAddPushButton;
-    QPushButton *browseArma3ExecutablePushButton;
 
     void init();
+    void loadArma3Executable();
+    void loadAdditionalParameters();
+    void loadModFolders();
+    void arma3ExecutableBrowsePushButtonClicked(bool checked);
+    void additionalParametersAddPushButtonClicked(bool checked);
+    void additionalParametersListWidgetCustomContextMenuRequestedHandler(QPoint pos);
+    void additionalParametersRemoveActionTriggered(bool checked);
     void modFoldersListWidgetCustomContextMenuRequestedHandler(QPoint pos);
-    void modFoldersListWidgetRemoveActionTriggered(bool checked);
+    void modFoldersRemoveActionTriggered(bool checked);
     void modFoldersAddPushButtonClicked(bool checked);
-    void browseArma3ExecutablePushButtonClicked(bool checked);
     QString getDetectedArma3Folder();
     void setArma3Executable(QString path);
+    bool hasAdditionalParameter(QString value);
+    bool addToAdditionalParametersList(QString value);
     bool hasModFolder(QString folder);
-    void insertIntoModFoldersList(QString text, int row = -1);
+    bool addToModFoldersList(QString text, int row = -1);
 
 signals:
 };

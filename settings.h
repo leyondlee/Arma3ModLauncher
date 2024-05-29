@@ -17,9 +17,9 @@
 #include "modgroupstreewidgetitem.h"
 
 #define ARMA3EXECUTABLE_KEY "arma3Executable"
+#define ADDITIONALPARAMETERS_KEY "additionalParameters"
 #define MODFOLDERS_KEY "modFolders"
 #define MODGROUPS_KEY "modGroups"
-
 #define MODGROUPS_ISCHECKED_KEY "isChecked"
 #define MODGROUPS_PATH_KEY "path"
 #define MODGROUPS_ISEXPANDED_KEY "isExpanded"
@@ -37,12 +37,14 @@ public:
 
 private:
     QLineEdit *arma3ExecutableLineEdit;
+    QListWidget *additionalParametersListWidget;
     QListWidget *modFoldersListWidget;
     QTreeWidget *modGroupsTreeWidget;
     QString saveFilename;
 
-    QJsonArray getModFolders();
-    QJsonObject getModGroups();
+    QJsonArray getAdditionalParametersSave();
+    QJsonArray getModFoldersSave();
+    QJsonObject getModGroupsSave();
 
 signals:
 };

@@ -20,11 +20,12 @@ public:
     bool hasCheckStateChanged();
     void updateSavedCheckState();
     int getChildrenCheckedCount();
-    bool haveAllChildrenChecked();
+    bool isAllChildrenChecked();
 
 private:
     bool folder;
     bool isMissing;
+    QColor originalColor;
     Qt::CheckState savedCheckState;
 };
 

@@ -66,9 +66,11 @@ void ModsTab::loadAvailableMods()
         folderItem->setFlags(folderItem->flags() & ~Qt::ItemIsDragEnabled);
         folderItem->setData(0, Qt::UserRole, folder);
 
-        QString name = Util::getFilename(folder);
+        QString path = Util::cleanPath(folder);
+        QString name = Util::getFilename(path);
         folderItem->setText(0, name);
-        folderItem->setToolTip(0, name);
+        folderItem->setToolTip(0, path);
+        folderItem->setData(0, Qt::UserRole, path);
 
         QString canonicalPath = QDir(folder).canonicalPath();
         QDir dir(canonicalPath);
@@ -219,7 +221,7 @@ void ModsTab::modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem 
     }
 
     this->modGroupsTreeWidget->blockSignals(true);
-    if (parentItem->haveAllChildrenChecked()) {
+    if (parentItem->isAllChildrenChecked()) {
         parentItem->setCheckState(Qt::Checked);
     } else if (parentItem->getChildrenCheckedCount() > 0) {
         parentItem->setCheckState(Qt::PartiallyChecked);

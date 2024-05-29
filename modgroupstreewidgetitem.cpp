@@ -5,6 +5,7 @@ ModGroupsTreeWidgetItem::ModGroupsTreeWidgetItem(QString name, QVariant data, bo
 {
     this->folder = isFolder;
     this->isMissing = false;
+    this->originalColor = this->foreground(0).color();
 
     this->setText(0, name);
     this->setToolTip(0, name);
@@ -36,6 +37,7 @@ ModGroupsTreeWidgetItem *ModGroupsTreeWidgetItem::addModToFolder(QString path)
     }
 
     ModGroupsTreeWidgetItem *newItem = new ModGroupsTreeWidgetItem(name, data, false);
+    newItem->setToolTip(0, path);
     this->addChild(newItem);
 
     return newItem;
@@ -45,9 +47,11 @@ void ModGroupsTreeWidgetItem::setMissing(bool isMissing)
 {
     this->isMissing = isMissing;
     if (this->isMissing) {
-        // TODO: color
+        this->setForeground(0, Qt::red);
         return;
     }
+
+    this->setForeground(0, this->originalColor);
 }
 
 ModGroupsTreeWidgetItem *ModGroupsTreeWidgetItem::castTreeWidgetItem(QTreeWidgetItem *item)
@@ -89,7 +93,7 @@ int ModGroupsTreeWidgetItem::getChildrenCheckedCount()
     return count;
 }
 
-bool ModGroupsTreeWidgetItem::haveAllChildrenChecked()
+bool ModGroupsTreeWidgetItem::isAllChildrenChecked()
 {
     return getChildrenCheckedCount() == this->childCount();
 }
