@@ -81,3 +81,24 @@ bool Util::hasItemInListWidget(QListWidget *listWidget, QString text, QVariant d
 
     return false;
 }
+
+QTreeWidgetItem *Util::getItemInTreeWithData(QTreeWidget *treeWidget, QVariant data)
+{
+    if (data.isNull()) {
+        return nullptr;
+    }
+
+    for (int i = 0; i < treeWidget->topLevelItemCount(); i += 1) {
+        QTreeWidgetItem *item = treeWidget->topLevelItem(i);
+        if (item == nullptr) {
+            continue;
+        }
+
+        QVariant itemData = item->data(0, Qt::UserRole);
+        if (!itemData.isNull() && itemData == data) {
+            return item;
+        }
+    }
+
+    return nullptr;
+}

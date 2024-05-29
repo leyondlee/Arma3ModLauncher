@@ -7,6 +7,7 @@ OptionsTab::OptionsTab(QWidget *optionsTab, ModsTab *modsTab, Settings *settings
     this->settings = settings;
     this->arma3ExecutableLineEdit = optionsTab->findChild<QLineEdit *>("arma3ExecutableLineEdit");
     this->arma3ExecutableBrowsePushButton = optionsTab->findChild<QPushButton *>("arma3ExecutableBrowsePushButton");
+    this->parametersGroupBox = optionsTab->findChild<QGroupBox *>("parametersGroupBox");
     this->additionalParametersListWidget = optionsTab->findChild<QListWidget *>("additionalParametersListWidget");
     this->additionalParametersAddPushButton = optionsTab->findChild<QPushButton *>("additionalParametersAddPushButton");
     this->modFoldersListWidget = optionsTab->findChild<QListWidget *>("modFoldersListWidget");
@@ -18,12 +19,22 @@ OptionsTab::OptionsTab(QWidget *optionsTab, ModsTab *modsTab, Settings *settings
 void OptionsTab::tabChanged()
 {
     this->arma3ExecutableLineEdit->setCursorPosition(0);
-    this->additionalParametersListWidget->clearSelection();
-    this->modFoldersListWidget->clearSelection();
+
+    refreshTab();
+}
+
+void OptionsTab::refreshTab()
+{
+    loadArma3Executable();
+    loadParameters();
+    loadAdditionalParameters();
+    loadModFolders();
 }
 
 void OptionsTab::init()
 {
+    initParameterCheckBoxes();
+
     this->arma3ExecutableLineEdit->setReadOnly(true);
     this->additionalParametersListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     this->additionalParametersListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -35,9 +46,22 @@ void OptionsTab::init()
     connect(this->modFoldersListWidget, &QListWidget::customContextMenuRequested, this, &OptionsTab::modFoldersListWidgetCustomContextMenuRequestedHandler);
     connect(this->modFoldersAddPushButton, &QPushButton::clicked, this, &OptionsTab::modFoldersAddPushButtonClicked);
 
-    loadArma3Executable();
-    loadAdditionalParameters();
-    loadModFolders();
+    refreshTab();
+}
+
+void OptionsTab::initParameterCheckBoxes()
+{
+    for (QHash<QString, QString>::iterator i = this->parameterCheckBoxMap.begin(); i != this->parameterCheckBoxMap.end(); ++i) {
+        QCheckBox *checkBox = parametersGroupBox->findChild<QCheckBox *>(i.value());
+        if (checkBox == nullptr) {
+            continue;
+        }
+
+        checkBox->setCheckState(Qt::Unchecked);
+        checkBox->setProperty(PARAMETER_CHECKBOX_PROPERTY, i.key());
+
+        connect(checkBox, &QCheckBox::stateChanged, this, &OptionsTab::parametersCheckBoxStateChanged);
+    }
 }
 
 void OptionsTab::loadArma3Executable()
@@ -54,7 +78,7 @@ void OptionsTab::loadArma3Executable()
             addToModFoldersList(workshopPath, 0);
 
             this->settings->save();
-            this->modsTab->refreshMods();
+            this->modsTab->refreshTab();
         }
 
         return;
@@ -65,8 +89,60 @@ void OptionsTab::loadArma3Executable()
     setArma3Executable(arma3Executable);
 }
 
+void OptionsTab::loadParameters()
+{
+    QJsonValue parametersSetting = this->settings->get(PARAMETERS_KEY);
+    if (parametersSetting.isNull() || !parametersSetting.isArray()) {
+        return;
+    }
+
+    QJsonArray parametersArray = parametersSetting.toArray();
+    for (auto childObject : this->parametersGroupBox->children()) {
+        QCheckBox *checkBox = qobject_cast<QCheckBox *>(childObject);
+        if (checkBox == nullptr) {
+            continue;
+        }
+
+        QVariant checkBoxParameter = checkBox->property(PARAMETER_CHECKBOX_PROPERTY);
+        if (checkBoxParameter.isNull() || !checkBoxParameter.canConvert<QString>()) {
+            continue;
+        }
+
+        checkBox->blockSignals(true);
+        if (parametersArray.contains(checkBoxParameter.toString())) {
+            checkBox->setCheckState(Qt::Checked);
+        } else {
+            checkBox->setCheckState(Qt::Unchecked);
+        }
+        checkBox->blockSignals(false);
+    }
+
+
+    for (auto value : parametersArray) {
+        if (!value.isString()) {
+            continue;
+        }
+
+        QString parameter = value.toString();
+        if (!parameterCheckBoxMap.contains(parameter)) {
+            continue;
+        }
+
+        QCheckBox *checkBox = this->parametersGroupBox->findChild<QCheckBox *>(parameterCheckBoxMap.value(parameter));
+        if (checkBox == nullptr) {
+            continue;
+        }
+
+        checkBox->blockSignals(true);
+        checkBox->setCheckState(Qt::Checked);
+        checkBox->blockSignals(false);
+    }
+}
+
 void OptionsTab::loadAdditionalParameters()
 {
+    this->additionalParametersListWidget->clear();
+
     QJsonValue additionalParametersSettings = this->settings->get(ADDITIONALPARAMETERS_KEY);
     if (additionalParametersSettings.isNull() || !additionalParametersSettings.isArray()) {
         return;
@@ -84,18 +160,16 @@ void OptionsTab::loadAdditionalParameters()
 
 void OptionsTab::loadModFolders()
 {
+    this->modFoldersListWidget->clear();
+
     QJsonValue modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
-    if (modFoldersSettings.isNull() || !modFoldersSettings.isArray()) {
+    if (modFoldersSettings.isNull() || !modFoldersSettings.isObject()) {
         return;
     }
 
-    QJsonArray modFoldersArray = modFoldersSettings.toArray();
-    for (auto folderValue : modFoldersArray) {
-        if (!folderValue.isString()) {
-            continue;
-        }
-
-        addToModFoldersList(folderValue.toString());
+    QJsonObject jsonObject = modFoldersSettings.toObject();
+    for (auto &key : jsonObject.keys()) {
+        addToModFoldersList(key);
     }
 }
 
@@ -107,6 +181,11 @@ void OptionsTab::arma3ExecutableBrowsePushButtonClicked(bool checked)
     }
 
     setArma3Executable(filename);
+    this->settings->save();
+}
+
+void OptionsTab::parametersCheckBoxStateChanged(int state)
+{
     this->settings->save();
 }
 
@@ -206,7 +285,7 @@ void OptionsTab::modFoldersRemoveActionTriggered(bool checked)
     delete itemTaken;
 
     this->settings->save();
-    this->modsTab->refreshMods();
+    this->modsTab->refreshTab();
 }
 
 void OptionsTab::modFoldersAddPushButtonClicked(bool checked)
@@ -223,7 +302,7 @@ void OptionsTab::modFoldersAddPushButtonClicked(bool checked)
     }
 
     this->settings->save();
-    this->modsTab->refreshMods();
+    this->modsTab->refreshTab();
 }
 
 QString OptionsTab::getDetectedArma3Folder()
@@ -242,21 +321,9 @@ void OptionsTab::setArma3Executable(QString path)
     this->arma3ExecutableLineEdit->setCursorPosition(0);
 }
 
-bool OptionsTab::hasAdditionalParameter(QString value)
-{
-    for (int i = 0; i < this->additionalParametersListWidget->count(); i += 1) {
-        QListWidgetItem *item = this->additionalParametersListWidget->item(i);
-        if (QString::compare(item->text(), value, Qt::CaseSensitive) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool OptionsTab::addToAdditionalParametersList(QString value)
 {
-    if (hasAdditionalParameter(value)) {
+    if (Util::hasItemInListWidget(this->additionalParametersListWidget, value, QVariant())) {
         return false;
     }
 
@@ -268,22 +335,10 @@ bool OptionsTab::addToAdditionalParametersList(QString value)
     return true;
 }
 
-bool OptionsTab::hasModFolder(QString folder)
-{
-    for (int i = 0; i < this->modFoldersListWidget->count(); i += 1) {
-        QListWidgetItem *item = this->modFoldersListWidget->item(i);
-        if (QString::compare(item->text(), folder, Qt::CaseSensitive) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool OptionsTab::addToModFoldersList(QString path, int row)
 {
     QString cleanPath = Util::cleanPath(path);
-    if (hasModFolder(cleanPath)) {
+    if (Util::hasItemInListWidget(this->modFoldersListWidget, cleanPath, QVariant())) {
         return false;
     }
 

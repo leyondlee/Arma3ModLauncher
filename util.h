@@ -18,6 +18,7 @@ public:
     static void removeTreeWidgetItem(QTreeWidgetItem *item);
     static bool hasItemInListWidget(QListWidget *listWidget, QString text, QVariant data);
     static void showMessage();
+    static QTreeWidgetItem *getItemInTreeWithData(QTreeWidget *treeWidget, QVariant data);
 };
 
 #endif // UTIL_H

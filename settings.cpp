@@ -4,8 +4,10 @@ Settings::Settings(QMainWindow *mainWindow)
     : QObject{mainWindow}
 {
     this->arma3ExecutableLineEdit = mainWindow->findChild<QLineEdit *>("arma3ExecutableLineEdit");
+    this->parametersGroupBox = mainWindow->findChild<QGroupBox *>("parametersGroupBox");
     this->additionalParametersListWidget = mainWindow->findChild<QListWidget *>("additionalParametersListWidget");
     this->modFoldersListWidget = mainWindow->findChild<QListWidget *>("modFoldersListWidget");
+    this->availableModsTreeWidget = mainWindow->findChild<QTreeWidget *>("availableModsTreeWidget");
     this->modGroupsTreeWidget = mainWindow->findChild<QTreeWidget *>("modGroupsTreeWidget");
     this->saveFilename = QString("%1.json").arg(Util::joinPaths({QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), QApplication::applicationName()}));
 }
@@ -19,9 +21,10 @@ void Settings::save()
 
     QJsonObject jsonObject;
     jsonObject.insert(ARMA3EXECUTABLE_KEY, this->arma3ExecutableLineEdit->text());
-    jsonObject.insert(ADDITIONALPARAMETERS_KEY, getAdditionalParametersSave());
-    jsonObject.insert(MODFOLDERS_KEY, getModFoldersSave());
-    jsonObject.insert(MODGROUPS_KEY, getModGroupsSave());
+    jsonObject.insert(PARAMETERS_KEY, getParametersJson());
+    jsonObject.insert(ADDITIONALPARAMETERS_KEY, getAdditionalParametersJson());
+    jsonObject.insert(MODFOLDERS_KEY, getModFoldersJson());
+    jsonObject.insert(MODGROUPS_KEY, getModGroupsJson());
 
     saveFile.write(QJsonDocument(jsonObject).toJson());
 }
@@ -47,7 +50,27 @@ QJsonValue Settings::get(QString key)
     return jsonObject.value(key);
 }
 
-QJsonArray Settings::getAdditionalParametersSave()
+QJsonValue Settings::getParametersJson()
+{
+    QJsonArray parameters;
+    for (auto object : this->parametersGroupBox->children()) {
+        QCheckBox *checkBox = qobject_cast<QCheckBox *>(object);
+        if (checkBox == nullptr || checkBox->checkState() != Qt::Checked) {
+            continue;
+        }
+
+        QVariant parameterValue = checkBox->property(PARAMETER_CHECKBOX_PROPERTY);
+        if (parameterValue.isNull() || !parameterValue.canConvert<QString>()) {
+            continue;
+        }
+
+        parameters.append(parameterValue.toString());
+    }
+
+    return parameters;
+}
+
+QJsonValue Settings::getAdditionalParametersJson()
 {
     QJsonArray additionalParameters;
     for (int i = 0; i < this->additionalParametersListWidget->count(); i += 1) {
@@ -63,25 +86,36 @@ QJsonArray Settings::getAdditionalParametersSave()
     return additionalParameters;
 }
 
-QJsonArray Settings::getModFoldersSave()
+QJsonValue Settings::getModFoldersJson()
 {
-    QJsonArray modFolders;
+    QJsonObject modFoldersData;
     for (int i = 0; i < this->modFoldersListWidget->count(); i += 1) {
         QListWidgetItem *item = this->modFoldersListWidget->item(i);
         QString folder = item->text();
-        if (modFolders.contains(folder)) {
+        if (modFoldersData.contains(folder)) {
             continue;
         }
 
-        modFolders.append(folder);
+        bool isExpanded;
+        QTreeWidgetItem *availableModsTreeWidgetItem = Util::getItemInTreeWithData(this->availableModsTreeWidget, QVariant(folder));
+        if (availableModsTreeWidgetItem == nullptr) {
+            isExpanded = false;
+        } else {
+            isExpanded = availableModsTreeWidgetItem->isExpanded();
+        }
+
+        QJsonObject folderObject;
+        folderObject.insert(MODFOLDERS_ISEXPANDED_KEY, isExpanded);
+
+        modFoldersData.insert(folder, folderObject);
     }
 
-    return modFolders;
+    return modFoldersData;
 }
 
-QJsonObject Settings::getModGroupsSave()
+QJsonValue Settings::getModGroupsJson()
 {
-    QJsonObject jsonObject;
+    QJsonObject modGroupsData;
     for (int i = 0; i < this->modGroupsTreeWidget->topLevelItemCount(); i += 1) {
         ModGroupsTreeWidgetItem *item = ModGroupsTreeWidgetItem::castTreeWidgetItem(this->modGroupsTreeWidget->topLevelItem(i));
         if (item == nullptr || !item->isFolder()) {
@@ -115,8 +149,8 @@ QJsonObject Settings::getModGroupsSave()
         QJsonObject folderObject;
         folderObject.insert(MODGROUPS_ISEXPANDED_KEY, item->isExpanded());
         folderObject.insert(MODGROUPS_MODS_KEY, values);
-        jsonObject.insert(data.toString(), folderObject);
+        modGroupsData.insert(data.toString(), folderObject);
     }
 
-    return jsonObject;
+    return modGroupsData;
 }

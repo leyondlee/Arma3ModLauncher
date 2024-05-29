@@ -13,17 +13,23 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QStandardPaths>
+#include <QGroupBox>
+#include <QCheckBox>
 
 #include "modgroupstreewidgetitem.h"
 
 #define ARMA3EXECUTABLE_KEY "arma3Executable"
+#define PARAMETERS_KEY "parameters"
 #define ADDITIONALPARAMETERS_KEY "additionalParameters"
 #define MODFOLDERS_KEY "modFolders"
+#define MODFOLDERS_ISEXPANDED_KEY "isExpanded"
 #define MODGROUPS_KEY "modGroups"
 #define MODGROUPS_ISCHECKED_KEY "isChecked"
 #define MODGROUPS_PATH_KEY "path"
 #define MODGROUPS_ISEXPANDED_KEY "isExpanded"
 #define MODGROUPS_MODS_KEY "mods"
+
+#define PARAMETER_CHECKBOX_PROPERTY "parameter_value"
 
 class Settings : public QObject
 {
@@ -37,14 +43,17 @@ public:
 
 private:
     QLineEdit *arma3ExecutableLineEdit;
+    QGroupBox *parametersGroupBox;
     QListWidget *additionalParametersListWidget;
     QListWidget *modFoldersListWidget;
+    QTreeWidget *availableModsTreeWidget;
     QTreeWidget *modGroupsTreeWidget;
     QString saveFilename;
 
-    QJsonArray getAdditionalParametersSave();
-    QJsonArray getModFoldersSave();
-    QJsonObject getModGroupsSave();
+    QJsonValue getParametersJson();
+    QJsonValue getAdditionalParametersJson();
+    QJsonValue getModFoldersJson();
+    QJsonValue getModGroupsJson();
 
 signals:
 };

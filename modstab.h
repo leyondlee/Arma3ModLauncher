@@ -25,7 +25,7 @@ class ModsTab : public QObject
 public:
     explicit ModsTab(QWidget *modsTab, Settings *settings);
 
-    void refreshMods();
+    void refreshTab();
 
 private:
     Settings *settings;

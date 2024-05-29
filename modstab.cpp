@@ -14,7 +14,7 @@ ModsTab::ModsTab(QWidget *modsTab, Settings *settings)
     init();
 }
 
-void ModsTab::refreshMods()
+void ModsTab::refreshTab()
 {
     loadAvailableMods();
     loadModGroups();
@@ -32,7 +32,7 @@ void ModsTab::init()
     connect(this->modGroupsSelectAllCheckBox, &QCheckBox::stateChanged, this, &ModsTab::modGroupsSelectAllCheckBoxStateChanged);
     connect(this->refreshModsPushButton, &QPushButton::clicked, this, &ModsTab::refreshPushButtonClicked);
 
-    refreshMods();
+    refreshTab();
 }
 
 void ModsTab::loadAvailableMods()
@@ -40,27 +40,16 @@ void ModsTab::loadAvailableMods()
     this->availableModsTreeWidget->clear();
 
     QJsonValue modFoldersSettings = this->settings->get(MODFOLDERS_KEY);
-    if (modFoldersSettings.isNull() || !modFoldersSettings.isArray()) {
+    if (modFoldersSettings.isNull() || !modFoldersSettings.isObject()) {
         return;
     }
 
-    QJsonArray modsFoldersArray = modFoldersSettings.toArray();
-    QStringList modFolders;
-    for (auto folderValue : modsFoldersArray) {
-        if (!folderValue.isString()) {
-            continue;
-        }
-
-        QString folder = folderValue.toString();
-        if (modFolders.contains(folder)) {
-            continue;
-        }
-
-        modFolders.append(folder);
-    }
+    QJsonObject jsonObject = modFoldersSettings.toObject();
 
     this->availableModsTreeWidget->blockSignals(true);
-    for (auto &folder : modFolders) {
+    for (QJsonObject::iterator i = jsonObject.begin(); i != jsonObject.end(); ++i) {
+        QString folder = i.key();
+
         QTreeWidgetItem *folderItem = new QTreeWidgetItem(this->availableModsTreeWidget);
         folderItem->setIcon(0, QApplication::style()->standardIcon(QStyle::SP_DirHomeIcon));
         folderItem->setFlags(folderItem->flags() & ~Qt::ItemIsDragEnabled);
@@ -97,6 +86,23 @@ void ModsTab::loadAvailableMods()
             QString path = Util::joinPaths({folder, filename});
             modItem->setData(0, Qt::UserRole, path);
         }
+
+        QJsonValue value = i.value();
+        if (!value.isObject()) {
+            continue;
+        }
+
+        QJsonObject valueObject = value.toObject();
+        if (!valueObject.contains(MODFOLDERS_ISEXPANDED_KEY)) {
+            continue;
+        }
+
+        QJsonValue isExpandedValue = valueObject.value(MODFOLDERS_ISEXPANDED_KEY);
+        if (!isExpandedValue.isBool()) {
+            continue;
+        }
+
+        folderItem->setExpanded(isExpandedValue.toBool());
     }
     this->availableModsTreeWidget->blockSignals(false);
     this->availableModsTreeWidget->doSort();
@@ -272,5 +278,5 @@ void ModsTab::modGroupsSelectAllCheckBoxStateChanged(int state)
 
 void ModsTab::refreshPushButtonClicked(bool checked)
 {
-    refreshMods();
+    refreshTab();
 }

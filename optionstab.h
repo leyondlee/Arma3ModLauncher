@@ -9,6 +9,9 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QCheckBox>
+#include <QHash>
+#include <QGroupBox>
 
 #include "util.h"
 #include "modstab.h"
@@ -26,22 +29,36 @@ public:
     explicit OptionsTab(QWidget *optionsTab, ModsTab *modsTab, Settings *settings);
 
     void tabChanged();
+    void refreshTab();
 
 private:
     ModsTab *modsTab;
     Settings *settings;
     QLineEdit *arma3ExecutableLineEdit;
     QPushButton *arma3ExecutableBrowsePushButton;
+    QGroupBox *parametersGroupBox;
     QListWidget *additionalParametersListWidget;
     QPushButton *additionalParametersAddPushButton;
     QListWidget *modFoldersListWidget;
     QPushButton *modFoldersAddPushButton;
+    QHash<QString, QString> parameterCheckBoxMap {
+        {"-skipIntro", "skipIntroCheckBox"},
+        {"-noSplash", "noSplashCheckBox"},
+        {"-window", "windowCheckBox"},
+        {"-filePatching", "filePatchingCheckBox"},
+        {"-noLogs", "noLogsCheckBox"},
+        {"-world=empty", "emptyWorldCheckBox"},
+        {"-showScriptErrors", "showScriptErrorsCheckBox"}
+    };
 
     void init();
+    void initParameterCheckBoxes();
     void loadArma3Executable();
+    void loadParameters();
     void loadAdditionalParameters();
     void loadModFolders();
     void arma3ExecutableBrowsePushButtonClicked(bool checked);
+    void parametersCheckBoxStateChanged(int state);
     void additionalParametersAddPushButtonClicked(bool checked);
     void additionalParametersListWidgetCustomContextMenuRequestedHandler(QPoint pos);
     void additionalParametersRemoveActionTriggered(bool checked);
@@ -50,9 +67,7 @@ private:
     void modFoldersAddPushButtonClicked(bool checked);
     QString getDetectedArma3Folder();
     void setArma3Executable(QString path);
-    bool hasAdditionalParameter(QString value);
     bool addToAdditionalParametersList(QString value);
-    bool hasModFolder(QString folder);
     bool addToModFoldersList(QString text, int row = -1);
 
 signals:

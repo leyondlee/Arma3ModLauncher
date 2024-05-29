@@ -26,6 +26,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::tabWidgetCurrentChangedHandler(int index)
 {
+    if (index == 0) {
+        modsTab->refreshTab();
+        return;
+    }
+
     if (index == 1) {
         optionsTab->tabChanged();
         return;
