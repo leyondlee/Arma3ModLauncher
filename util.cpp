@@ -82,6 +82,12 @@ bool Util::hasItemInListWidget(QListWidget *listWidget, QString text, QVariant d
     return false;
 }
 
+void Util::showWarningMessage(QString title, QString message, QWidget *parent)
+{
+    QMessageBox messageBox(QMessageBox::Warning, title, message, QMessageBox::NoButton, parent);
+    messageBox.exec();
+}
+
 QTreeWidgetItem *Util::getItemInTreeWithData(QTreeWidget *treeWidget, QVariant data)
 {
     if (data.isNull()) {

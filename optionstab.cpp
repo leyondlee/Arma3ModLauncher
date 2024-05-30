@@ -68,18 +68,22 @@ void OptionsTab::loadArma3Executable()
 {
     QJsonValue arma3ExecutableSetting = this->settings->get(ARMA3EXECUTABLE_KEY);
     if (arma3ExecutableSetting.isNull() || !arma3ExecutableSetting.isString()) {
+        // Detect and set Arma 3 executable
         QString detectedArma3Folder = getDetectedArma3Folder();
-        if (!detectedArma3Folder.isEmpty()) {
-            QString arma3Executable = Util::joinPaths(QStringList({detectedArma3Folder, ARMA3_EXECUTABLE}));
-            setArma3Executable(arma3Executable);
-
-            QString workshopPath = Util::joinPaths(QStringList({detectedArma3Folder, WORKSHOP_FOLDER}));
-            addToModFoldersList(workshopPath, 0);
-
-            this->settings->save();
-            this->modsTab->refreshTab();
+        if (detectedArma3Folder.isEmpty()) {
+            setArma3Executable("");
+            return;
         }
 
+        QString arma3Executable = Util::joinPaths(QStringList({detectedArma3Folder, ARMA3_EXECUTABLE}));
+        setArma3Executable(arma3Executable);
+
+        // Add default workshop path
+        QString workshopPath = Util::joinPaths(QStringList({detectedArma3Folder, WORKSHOP_FOLDER}));
+        addToModFoldersList(workshopPath, 0);
+
+        this->settings->save();
+        this->modsTab->refreshTab();
         return;
     }
 
@@ -217,8 +221,7 @@ void OptionsTab::additionalParametersAddPushButtonClicked(bool checked)
     }
 
     if (!addToAdditionalParametersList(value)) {
-        QMessageBox messageBox(QMessageBox::Warning, "Add Parameter", "Value already exists.", QMessageBox::NoButton, this->additionalParametersAddPushButton);
-        messageBox.exec();
+        Util::showWarningMessage("Add Parameter", "Value already exists.", this->additionalParametersAddPushButton);
         return;
     }
 
@@ -273,8 +276,7 @@ void OptionsTab::modFoldersAddPushButtonClicked(bool checked)
     }
 
     if (!addToModFoldersList(folder)) {
-        QMessageBox messageBox(QMessageBox::Warning, "Select Mod Folder", "Folder already exists.", QMessageBox::NoButton, this->modFoldersAddPushButton);
-        messageBox.exec();
+        Util::showWarningMessage("Select Mod Folder", "Folder already exists.", this->modFoldersAddPushButton);
         return;
     }
 

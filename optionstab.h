@@ -8,7 +8,6 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QMenu>
-#include <QMessageBox>
 #include <QCheckBox>
 #include <QHash>
 #include <QGroupBox>

@@ -5,7 +5,6 @@
 #include <QDragEnterEvent>
 #include <QMenu>
 #include <QInputDialog>
-#include <QMessageBox>
 
 #include "modstabtreewidget.h"
 #include "availablemodstreewidget.h"
@@ -33,7 +32,7 @@ private:
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
-    void dragLeaveEvent(QDragLeaveEvent *event) override;
+    //void dragLeaveEvent(QDragLeaveEvent *event) override;
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
 

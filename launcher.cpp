@@ -39,14 +39,12 @@ void Launcher::startGameProcess(QStringList mods)
 {
     QString arma3Executable = this->arma3ExecutableLineEdit->text();
     if (arma3Executable.isEmpty() || !QFileInfo::exists(arma3Executable)) {
-        QMessageBox messageBox(QMessageBox::Warning, "Launch Game", "Arma 3 executable file not found.", QMessageBox::NoButton, this->launchGameToolButton);
-        messageBox.exec();
+        Util::showWarningMessage("Launch Game", "Arma 3 executable file not found.", this->launchGameToolButton);
         return;
     }
 
     if (!QFileInfo(arma3Executable).isExecutable()) {
-        QMessageBox messageBox(QMessageBox::Warning, "Launch Game", "Invalid Arma 3 executable file.", QMessageBox::NoButton, this->launchGameToolButton);
-        messageBox.exec();
+        Util::showWarningMessage("Launch Game", "Invalid Arma 3 executable file.", this->launchGameToolButton);
         return;
     }
 

@@ -12,7 +12,6 @@
 #include <QHash>
 #include <QToolButton>
 #include <QProcess>
-#include <QMessageBox>
 
 #include "modgroupstreewidget.h"
 #include "settings.h"

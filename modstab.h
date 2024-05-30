@@ -7,7 +7,6 @@
 #include <QDirIterator>
 #include <QMenu>
 #include <QInputDialog>
-#include <QMessageBox>
 #include <QApplication>
 #include <QCheckBox>
 #include <QPushButton>

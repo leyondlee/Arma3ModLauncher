@@ -42,6 +42,10 @@ QJsonValue Settings::get(QString key)
 
     QByteArray saveData = saveFile.readAll();
     QJsonDocument jsonDocument = QJsonDocument::fromJson(saveData);
+    if (!jsonDocument.isObject()) {
+        return QJsonValue();
+    }
+
     QJsonObject jsonObject = jsonDocument.object();
     if (!jsonObject.contains(key)) {
         return QJsonValue();

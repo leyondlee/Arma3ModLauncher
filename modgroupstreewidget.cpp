@@ -49,6 +49,7 @@ void ModGroupsTreeWidget::customContextMenuRequestedHandler(QPoint pos)
 
     ModGroupsTreeWidgetItem *item =  ModGroupsTreeWidgetItem::castTreeWidgetItem(this->itemAt(pos));
     if (item == nullptr) {
+        // No item at pos
         this->clearSelection();
         renameAction->setEnabled(false);
         removeAction->setEnabled(false);
@@ -56,6 +57,7 @@ void ModGroupsTreeWidget::customContextMenuRequestedHandler(QPoint pos)
         item->setSelected(true);
 
         if (!item->isFolder() || this->selectedItems().size() > 1) {
+            // Item not a folder or selected more than 1 item
             renameAction->setEnabled(false);
         }
     }
@@ -79,6 +81,7 @@ void ModGroupsTreeWidget::itemChangedHandler(QTreeWidgetItem *item, int column)
     }
 
     castedItem->updateSavedCheckState();
+
     emit itemCheckStateChangedSignal(castedItem);
 }
 
@@ -91,8 +94,7 @@ void ModGroupsTreeWidget::addFolderActionTriggered(bool checked)
     }
 
     if (this->hasItem(name, QVariant(name), 0)) {
-        QMessageBox messageBox(QMessageBox::Warning, "Add Folder", "Folder with the name already exists.", QMessageBox::NoButton, this);
-        messageBox.exec();
+        Util::showWarningMessage("Add Folder", "Folder with the name already exists.", this);
         return;
     }
 
@@ -132,8 +134,7 @@ void ModGroupsTreeWidget::renameActionTriggered(bool checked)
     }
 
     if (this->hasItem(newName, QVariant(newName), 0)) {
-        QMessageBox messageBox(QMessageBox::Warning, "Rename Folder", "Folder with the name already exists.", QMessageBox::NoButton, this);
-        messageBox.exec();
+        Util::showWarningMessage("Rename Folder", "Folder with the name already exists.", this);
         return;
     }
 
@@ -148,7 +149,6 @@ void ModGroupsTreeWidget::renameActionTriggered(bool checked)
 void ModGroupsTreeWidget::removeActionTriggered(bool checked)
 {
     QList<QTreeWidgetItem *> itemsToDelete;
-
     QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
     for (auto item : selectedItems) {
         QTreeWidgetItem *parentItem = item->parent();
@@ -176,10 +176,10 @@ void ModGroupsTreeWidget::dragEnterEvent(QDragEnterEvent *event)
     event->acceptProposedAction();
 }
 
-void ModGroupsTreeWidget::dragLeaveEvent(QDragLeaveEvent *event)
+/*void ModGroupsTreeWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
 
-}
+}*/
 
 void ModGroupsTreeWidget::dragMoveEvent(QDragMoveEvent *event)
 {
@@ -198,6 +198,7 @@ void ModGroupsTreeWidget::dragMoveEvent(QDragMoveEvent *event)
         }
 
         if (topLevelItem == item) {
+            // Dragging over folder or any item within
             hasSelectedItem = true;
             topLevelItem->setSelected(true);
             continue;
@@ -229,8 +230,10 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
         return;
     }
 
+    // Destination folder
     QTreeWidgetItem *targetItem = item;
     while (targetItem->parent() != nullptr) {
+        // Get top level item
         targetItem = targetItem->parent();
     }
 
@@ -246,21 +249,26 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
     bool hasChanges = false;
     QList<int> keys = dragDropData.keys();
     for (auto key : keys) {
+        // Source folder
         QTreeWidgetItem *parentItem = sourceTreeWidget->topLevelItem(key);
         if (parentItem == nullptr || parentItem == targetItem) {
             continue;
         }
 
-        QVariant variant = dragDropData.value(key);
-        if (variant.isNull() || !variant.canConvert<QList<int>>()) {
+        QJsonValue jsonValue = dragDropData.value(key);
+        if (!jsonValue.isArray()) {
             continue;
         }
 
         QList<QTreeWidgetItem *> itemsToRemove;
+        QJsonArray jsonArray = jsonValue.toArray();
+        for (auto value : jsonArray) {
+            if (!value.isDouble()) {
+                continue;
+            }
 
-        QList<int> values = variant.value<QList<int>>();
-        for (auto &value : values) {
-            QTreeWidgetItem *item = parentItem->child(value);
+            // Source item
+            QTreeWidgetItem *item = parentItem->child(value.toInt());
             if (item == nullptr) {
                 continue;
             }
@@ -270,6 +278,7 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
                 continue;
             }
 
+            // Create new item in destination folder
             ModGroupsTreeWidgetItem *newItem = targetItemCasted->addModToFolder(data.toString());
             if (newItem == nullptr) {
                 continue;
@@ -277,6 +286,7 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
 
             hasChanges = true;
 
+            // Check if source of drop is from within modGroupsTreeWidget
             if (sourceTreeWidget == this) {
                 itemsToRemove.append(item);
                 newItem->setCheckState(item->checkState(0));

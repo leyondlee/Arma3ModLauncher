@@ -210,6 +210,7 @@ void ModsTab::modGroupsTreeChangedHandler()
 void ModsTab::modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem *item)
 {
     if (item->isFolder()) {
+        // Folder checkState changed
         this->modGroupsTreeWidget->blockSignals(true);
         for (int i = 0; i < item->childCount(); i += 1) {
             ModGroupsTreeWidgetItem *childItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(item->child(i));
@@ -224,6 +225,7 @@ void ModsTab::modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem 
         return;
     }
 
+    // Item checkState changed
     ModGroupsTreeWidgetItem *parentItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(item->parent());
     if (parentItem == nullptr || parentItem->parent() != nullptr) {
         return;

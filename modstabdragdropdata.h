@@ -3,7 +3,9 @@
 
 #include <QObject>
 #include <QHash>
+#include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonArray>
 
 class ModsTabDragDropData : public QObject
 {
@@ -12,13 +14,13 @@ public:
     explicit ModsTabDragDropData(QObject *parent = nullptr);
 
     QList<int> keys();
-    QVariant value(int key);
+    QJsonValue value(int key);
     void insert(int key, int value);
     QByteArray data();
     void load(QByteArray data);
 
 private:
-    QHash<int, QList<int>> hashMap;
+    QJsonObject jsonObject;
 
 signals:
 };

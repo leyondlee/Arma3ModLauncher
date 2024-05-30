@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QTreeWidgetItem>
 #include <QListWidget>
+#include <QMessageBox>
 
 class Util
 {
@@ -17,7 +18,7 @@ public:
     static bool hasItemInTreeWidgetItem(QTreeWidgetItem *item, QString text, QVariant data, int column);
     static void removeTreeWidgetItem(QTreeWidgetItem *item);
     static bool hasItemInListWidget(QListWidget *listWidget, QString text, QVariant data);
-    static void showMessage();
+    static void showWarningMessage(QString title, QString message, QWidget *parent = nullptr);
     static QTreeWidgetItem *getItemInTreeWithData(QTreeWidget *treeWidget, QVariant data);
 };
 
