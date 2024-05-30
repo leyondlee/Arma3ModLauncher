@@ -2,7 +2,7 @@
 
 QString Util::cleanPath(QString path)
 {
-    return QDir::toNativeSeparators(QDir::cleanPath(path));
+    return QDir::toNativeSeparators(QDir::cleanPath(path.trimmed()));
 }
 
 QString Util::joinPaths(QStringList paths)

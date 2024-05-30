@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->settings = new Settings(this);
     this->modsTab = new ModsTab(ui->modsTab, this->settings);
     this->optionsTab = new OptionsTab(ui->optionsTab, this->modsTab, this->settings);
+    this->launcher = new Launcher(this);
 
     connect(this->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabWidgetCurrentChangedHandler);
     connect(QApplication::instance(), &QApplication::aboutToQuit, this, &MainWindow::applicationAboutToQuitHandler);

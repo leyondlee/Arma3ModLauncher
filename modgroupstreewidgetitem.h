@@ -15,6 +15,7 @@ public:
     bool isFolder();
     ModGroupsTreeWidgetItem *addModToFolder(QString path);
     void setMissing(bool isMissing);
+    bool isMissing();
     static ModGroupsTreeWidgetItem *castTreeWidgetItem(QTreeWidgetItem *item);
     void setCheckState(Qt::CheckState state);
     bool hasCheckStateChanged();
@@ -24,7 +25,7 @@ public:
 
 private:
     bool folder;
-    bool isMissing;
+    bool missingState;
     QColor originalColor;
     Qt::CheckState savedCheckState;
 };

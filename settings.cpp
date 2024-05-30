@@ -59,12 +59,12 @@ QJsonValue Settings::getParametersJson()
             continue;
         }
 
-        QVariant parameterValue = checkBox->property(PARAMETER_CHECKBOX_PROPERTY);
-        if (parameterValue.isNull() || !parameterValue.canConvert<QString>()) {
+        QVariant parameterVariant = checkBox->property(PARAMETER_CHECKBOX_PROPERTY);
+        if (parameterVariant.isNull() || !parameterVariant.canConvert<QString>()) {
             continue;
         }
 
-        parameters.append(parameterValue.toString());
+        parameters.append(parameterVariant.toString());
     }
 
     return parameters;

@@ -8,6 +8,7 @@
 #include "settings.h"
 #include "modstab.h"
 #include "optionstab.h"
+#include "launcher.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -29,6 +30,7 @@ private:
     QTabWidget *tabWidget;
     ModsTab *modsTab;
     OptionsTab *optionsTab;
+    Launcher *launcher;
 
     void tabWidgetCurrentChangedHandler(int index);
     void applicationAboutToQuitHandler();

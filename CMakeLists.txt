@@ -33,12 +33,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         availablemodstreewidget.h availablemodstreewidget.cpp
         modstabtreewidget.h modstabtreewidget.cpp
         modstabdragdropdata.h modstabdragdropdata.cpp
-
-
-
-
-
-
+        launcher.h launcher.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Arma3ModLauncher APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

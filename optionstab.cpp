@@ -152,7 +152,7 @@ void OptionsTab::loadModFolders()
 
 void OptionsTab::arma3ExecutableBrowsePushButtonClicked(bool checked)
 {
-    QString filename = QFileDialog::getOpenFileName(this->arma3ExecutableBrowsePushButton, "Select Arma 3 Executable", QString(), tr("Executable Files (*.exe)"));
+    QString filename = QFileDialog::getOpenFileName(this->arma3ExecutableBrowsePushButton, "Select Arma 3 Executable", QString(), tr("Executable Files (*.exe)")).trimmed();
     if (filename.isEmpty()) {
         return;
     }
@@ -211,7 +211,7 @@ void OptionsTab::additionalParametersRemoveActionTriggered(bool checked)
 void OptionsTab::additionalParametersAddPushButtonClicked(bool checked)
 {
     bool ok;
-    QString value = QInputDialog::getMultiLineText(this->additionalParametersAddPushButton, tr("Add Parameter"), tr("Value:"), tr(""), &ok);
+    QString value = QInputDialog::getText(this->additionalParametersAddPushButton, tr("Add Parameter"), tr("Value:"), QLineEdit::Normal, tr(""), &ok).trimmed();
     if (!ok || value.isEmpty()) {
         return;
     }
@@ -267,7 +267,7 @@ void OptionsTab::modFoldersRemoveActionTriggered(bool checked)
 
 void OptionsTab::modFoldersAddPushButtonClicked(bool checked)
 {
-    QString folder = QFileDialog::getExistingDirectory(this->modFoldersAddPushButton, tr("Select Mod Folder"), QString(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QString folder = QFileDialog::getExistingDirectory(this->modFoldersAddPushButton, tr("Select Mod Folder"), QString(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks).trimmed();
     if (folder.isEmpty()) {
         return;
     }
@@ -300,13 +300,18 @@ void OptionsTab::setArma3Executable(QString path)
 
 bool OptionsTab::addToAdditionalParametersList(QString value)
 {
-    if (Util::hasItemInListWidget(this->additionalParametersListWidget, value, QVariant())) {
+    QString valueTrimmed = value.trimmed();
+    if (valueTrimmed.isEmpty()) {
+        return false;
+    }
+
+    if (Util::hasItemInListWidget(this->additionalParametersListWidget, valueTrimmed, QVariant())) {
         return false;
     }
 
     QListWidgetItem *item = new QListWidgetItem();
-    item->setText(value);
-    item->setToolTip(value);
+    item->setText(valueTrimmed);
+    item->setToolTip(valueTrimmed);
     this->additionalParametersListWidget->addItem(item);
 
     return true;
@@ -314,6 +319,10 @@ bool OptionsTab::addToAdditionalParametersList(QString value)
 
 bool OptionsTab::addToModFoldersList(QString path, int row)
 {
+    if (path.isEmpty()) {
+        return false;
+    }
+
     QString cleanPath = Util::cleanPath(path);
     if (Util::hasItemInListWidget(this->modFoldersListWidget, cleanPath, QVariant())) {
         return false;

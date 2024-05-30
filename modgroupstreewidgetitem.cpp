@@ -4,7 +4,7 @@ ModGroupsTreeWidgetItem::ModGroupsTreeWidgetItem(QString name, QVariant data, bo
     : QTreeWidgetItem{}
 {
     this->folder = isFolder;
-    this->isMissing = false;
+    this->missingState = false;
     this->originalColor = this->foreground(0).color();
 
     this->setText(0, name);
@@ -45,13 +45,18 @@ ModGroupsTreeWidgetItem *ModGroupsTreeWidgetItem::addModToFolder(QString path)
 
 void ModGroupsTreeWidgetItem::setMissing(bool isMissing)
 {
-    this->isMissing = isMissing;
-    if (this->isMissing) {
+    this->missingState = isMissing;
+    if (this->missingState) {
         this->setForeground(0, Qt::red);
         return;
     }
 
     this->setForeground(0, this->originalColor);
+}
+
+bool ModGroupsTreeWidgetItem::isMissing()
+{
+    return this->missingState;
 }
 
 ModGroupsTreeWidgetItem *ModGroupsTreeWidgetItem::castTreeWidgetItem(QTreeWidgetItem *item)

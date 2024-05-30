@@ -17,7 +17,12 @@ void ModGroupsTreeWidget::setAvailableModsTreeWidget(AvailableModsTreeWidget *av
 
 ModGroupsTreeWidgetItem *ModGroupsTreeWidget::addFolder(QString name)
 {
-    ModGroupsTreeWidgetItem *folderItem = new ModGroupsTreeWidgetItem(name, QVariant(name), true);
+    QString nameTrimmed = name.trimmed();
+    if (nameTrimmed.isEmpty()) {
+        return nullptr;
+    }
+
+    ModGroupsTreeWidgetItem *folderItem = new ModGroupsTreeWidgetItem(nameTrimmed, QVariant(nameTrimmed), true);
     folderItem->setFlags(folderItem->flags() & ~Qt::ItemIsDragEnabled);
 
     this->addTopLevelItem(folderItem);
@@ -42,15 +47,15 @@ void ModGroupsTreeWidget::customContextMenuRequestedHandler(QPoint pos)
     menu->addAction(removeAction);
     connect(removeAction, &QAction::triggered, this, &ModGroupsTreeWidget::removeActionTriggered);
 
-    QTreeWidgetItem *item = this->itemAt(pos);
+    ModGroupsTreeWidgetItem *item =  ModGroupsTreeWidgetItem::castTreeWidgetItem(this->itemAt(pos));
     if (item == nullptr) {
         this->clearSelection();
+        renameAction->setEnabled(false);
         removeAction->setEnabled(false);
     } else {
         item->setSelected(true);
 
-        ModGroupsTreeWidgetItem *castedItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(item);
-        if (castedItem == nullptr || !castedItem->isFolder() || this->selectedItems().size() > 1) {
+        if (!item->isFolder() || this->selectedItems().size() > 1) {
             renameAction->setEnabled(false);
         }
     }
@@ -80,7 +85,7 @@ void ModGroupsTreeWidget::itemChangedHandler(QTreeWidgetItem *item, int column)
 void ModGroupsTreeWidget::addFolderActionTriggered(bool checked)
 {
     bool ok;
-    QString name = QInputDialog::getText(this, tr("Add Folder"), tr("Name:"), QLineEdit::Normal, tr(""), &ok);
+    QString name = QInputDialog::getText(this, tr("Add Folder"), tr("Name:"), QLineEdit::Normal, tr(""), &ok).trimmed();
     if (!ok || name.isEmpty()) {
         return;
     }
@@ -92,6 +97,10 @@ void ModGroupsTreeWidget::addFolderActionTriggered(bool checked)
     }
 
     ModGroupsTreeWidgetItem *folderItem = addFolder(name);
+    if (folderItem == nullptr) {
+        return;
+    }
+
     this->clearSelection();
     folderItem->setSelected(true);
 
@@ -117,7 +126,7 @@ void ModGroupsTreeWidget::renameActionTriggered(bool checked)
     QString name = item->text(0);
 
     bool ok;
-    QString newName = QInputDialog::getText(this, tr("Rename Folder"), tr("Name:"), QLineEdit::Normal, name, &ok);
+    QString newName = QInputDialog::getText(this, tr("Rename Folder"), tr("Name:"), QLineEdit::Normal, name, &ok).trimmed();
     if (!ok || newName.isEmpty() || QString::compare(newName, name) == 0) {
         return;
     }

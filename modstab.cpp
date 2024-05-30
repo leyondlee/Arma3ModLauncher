@@ -141,6 +141,9 @@ void ModsTab::loadModGroups()
         }
 
         ModGroupsTreeWidgetItem *folderItem = this->modGroupsTreeWidget->addFolder(key);
+        if (folderItem == nullptr) {
+            continue;
+        }
         folderItem->setExpanded(isExpandedJsonValue.toBool());
 
         bool hasChecked = false;
@@ -179,7 +182,7 @@ void ModsTab::loadModGroups()
                 hasUnchecked = true;
             }
 
-            if (!this->availableModsTreeWidget->hasItem(Util::getFilename(path), QVariant(path), 0)) {
+            if (!this->availableModsTreeWidget->hasItem(Util::getFilename(path), QVariant(path), 0) || !QDir(path).exists()) {
                 item->setMissing(true);
                 continue;
             }
