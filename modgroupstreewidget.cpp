@@ -263,12 +263,13 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
         QList<QTreeWidgetItem *> itemsToRemove;
         QJsonArray jsonArray = jsonValue.toArray();
         for (auto value : jsonArray) {
-            if (!value.isDouble()) {
+            QVariant valueVariant = value.toVariant();
+            if (!valueVariant.canConvert<int>()) {
                 continue;
             }
 
             // Source item
-            QTreeWidgetItem *item = parentItem->child(value.toInt());
+            QTreeWidgetItem *item = parentItem->child(valueVariant.toInt());
             if (item == nullptr) {
                 continue;
             }
