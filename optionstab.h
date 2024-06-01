@@ -60,6 +60,7 @@ private:
     void parametersCheckBoxStateChanged(int state);
     void additionalParametersAddPushButtonClicked(bool checked);
     void additionalParametersListWidgetCustomContextMenuRequestedHandler(QPoint pos);
+    void additionalParametersEditActionTriggered(bool checked);
     void additionalParametersRemoveActionTriggered(bool checked);
     void modFoldersListWidgetCustomContextMenuRequestedHandler(QPoint pos);
     void modFoldersRemoveActionTriggered(bool checked);

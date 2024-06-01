@@ -177,17 +177,51 @@ void OptionsTab::additionalParametersListWidgetCustomContextMenuRequestedHandler
         return;
     }
 
-    if (!this->additionalParametersListWidget->selectedItems().contains(item)) {
-        this->additionalParametersListWidget->clearSelection();
-        item->setSelected(true);
-    }
-
     QMenu *menu = new QMenu(this->additionalParametersListWidget);
+
+    QAction *editAction = new QAction("Edit", menu);
+    menu->addAction(editAction);
+    connect(editAction, &QAction::triggered, this, &OptionsTab::additionalParametersEditActionTriggered);
+
     QAction *removeAction = new QAction("Remove", menu);
     menu->addAction(removeAction);
     connect(removeAction, &QAction::triggered, this, &OptionsTab::additionalParametersRemoveActionTriggered);
 
+    if (this->additionalParametersListWidget->selectedItems().count() > 1) {
+        editAction->setEnabled(false);
+    }
+
     menu->exec(this->additionalParametersListWidget->mapToGlobal(pos));
+}
+
+void OptionsTab::additionalParametersEditActionTriggered(bool checked)
+{
+    if (this->additionalParametersListWidget->selectedItems().size() > 1) {
+        return;
+    }
+
+    QListWidgetItem *item = this->additionalParametersListWidget->currentItem();
+    if (item == nullptr) {
+        return;
+    }
+
+    QString value = item->text();
+
+    bool ok;
+    QString newValue = QInputDialog::getText(this->additionalParametersListWidget, tr("Edit Parameter"), tr("Value:"), QLineEdit::Normal, value, &ok).trimmed();
+    if (!ok || newValue.isEmpty() || QString::compare(newValue, value) == 0) {
+        return;
+    }
+
+    if (Util::hasItemInListWidget(this->additionalParametersListWidget, newValue, QVariant())) {
+        Util::showWarningMessage("Edit Parameter", "Parameter already exists.", this->additionalParametersListWidget);
+        return;
+    }
+
+    item->setText(newValue);
+    item->setToolTip(newValue);
+
+    this->settings->save();
 }
 
 void OptionsTab::additionalParametersRemoveActionTriggered(bool checked)
@@ -221,7 +255,7 @@ void OptionsTab::additionalParametersAddPushButtonClicked(bool checked)
     }
 
     if (!addToAdditionalParametersList(value)) {
-        Util::showWarningMessage("Add Parameter", "Value already exists.", this->additionalParametersAddPushButton);
+        Util::showWarningMessage("Add Parameter", "Parameter already exists.", this->additionalParametersAddPushButton);
         return;
     }
 
