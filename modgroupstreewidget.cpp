@@ -299,7 +299,10 @@ void ModGroupsTreeWidget::dropEvent(QDropEvent *event)
         }
     }
 
+    this->blockSignals(true);
     targetItem->setExpanded(true);
+    this->blockSignals(false);
+
     this->doSort();
     event->accept();
 

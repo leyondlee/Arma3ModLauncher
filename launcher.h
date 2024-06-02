@@ -16,6 +16,8 @@
 #include "modgroupstreewidget.h"
 #include "settings.h"
 
+#define ARMA3_EXECUTABLE "arma3_x64.exe"
+
 class Launcher : public QObject
 {
     Q_OBJECT
@@ -25,7 +27,7 @@ public:
 
     QToolButton *launchGameToolButton;
     ModGroupsTreeWidget *modGroupsTreeWidget;
-    QLineEdit *arma3ExecutableLineEdit;
+    QLineEdit *arma3FolderLineEdit;
     QGroupBox *parametersGroupBox;
     QListWidget *additionalParametersListWidget;
 

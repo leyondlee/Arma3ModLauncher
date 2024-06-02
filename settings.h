@@ -18,7 +18,7 @@
 
 #include "modgroupstreewidgetitem.h"
 
-#define ARMA3EXECUTABLE_KEY "arma3Executable"
+#define ARMA3FOLDER_KEY "arma3Folder"
 #define PARAMETERS_KEY "parameters"
 #define ADDITIONALPARAMETERS_KEY "additionalParameters"
 #define MODFOLDERS_KEY "modFolders"
@@ -42,7 +42,7 @@ public:
     QJsonValue get(QString key);
 
 private:
-    QLineEdit *arma3ExecutableLineEdit;
+    QLineEdit *arma3FolderLineEdit;
     QGroupBox *parametersGroupBox;
     QListWidget *additionalParametersListWidget;
     QListWidget *modFoldersListWidget;

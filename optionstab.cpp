@@ -5,9 +5,9 @@ OptionsTab::OptionsTab(QWidget *optionsTab, ModsTab *modsTab, Settings *settings
 {
     this->modsTab = modsTab;
     this->settings = settings;
-    this->arma3ExecutableLineEdit = optionsTab->findChild<QLineEdit *>("arma3ExecutableLineEdit");
-    this->arma3ExecutableAutoDetectPushButton = optionsTab->findChild<QPushButton *>("arma3ExecutableAutoDetectPushButton");
-    this->arma3ExecutableBrowsePushButton = optionsTab->findChild<QPushButton *>("arma3ExecutableBrowsePushButton");
+    this->arma3FolderLineEdit = optionsTab->findChild<QLineEdit *>("arma3FolderLineEdit");
+    this->arma3FolderAutoDetectPushButton = optionsTab->findChild<QPushButton *>("arma3FolderAutoDetectPushButton");
+    this->arma3FolderBrowsePushButton = optionsTab->findChild<QPushButton *>("arma3FolderBrowsePushButton");
     this->parametersGroupBox = optionsTab->findChild<QGroupBox *>("parametersGroupBox");
     this->additionalParametersListWidget = optionsTab->findChild<QListWidget *>("additionalParametersListWidget");
     this->additionalParametersAddPushButton = optionsTab->findChild<QPushButton *>("additionalParametersAddPushButton");
@@ -19,14 +19,14 @@ OptionsTab::OptionsTab(QWidget *optionsTab, ModsTab *modsTab, Settings *settings
 
 void OptionsTab::tabChanged()
 {
-    this->arma3ExecutableLineEdit->setCursorPosition(0);
+    this->arma3FolderLineEdit->setCursorPosition(0);
 
     refreshTab();
 }
 
 void OptionsTab::refreshTab()
 {
-    loadArma3Executable();
+    loadArma3Folder();
     loadParameters();
     loadAdditionalParameters();
     loadModFolders();
@@ -36,13 +36,13 @@ void OptionsTab::init()
 {
     initParameterCheckBoxes();
 
-    this->arma3ExecutableLineEdit->setReadOnly(true);
+    this->arma3FolderLineEdit->setReadOnly(true);
     this->additionalParametersListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     this->additionalParametersListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     this->modFoldersListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(this->arma3ExecutableAutoDetectPushButton, &QPushButton::clicked, this, &OptionsTab::arma3ExecutableAutoDetectPushButtonClicked);
-    connect(this->arma3ExecutableBrowsePushButton, &QPushButton::clicked, this, &OptionsTab::arma3ExecutableBrowsePushButtonClicked);
+    connect(this->arma3FolderAutoDetectPushButton, &QPushButton::clicked, this, &OptionsTab::arma3FolderAutoDetectPushButtonClicked);
+    connect(this->arma3FolderBrowsePushButton, &QPushButton::clicked, this, &OptionsTab::arma3FolderBrowsePushButtonClicked);
     connect(this->additionalParametersListWidget, &QListWidget::customContextMenuRequested, this, &OptionsTab::additionalParametersListWidgetCustomContextMenuRequestedHandler);
     connect(this->additionalParametersAddPushButton, &QPushButton::clicked, this, &OptionsTab::additionalParametersAddPushButtonClicked);
     connect(this->modFoldersListWidget, &QListWidget::customContextMenuRequested, this, &OptionsTab::modFoldersListWidgetCustomContextMenuRequestedHandler);
@@ -66,19 +66,18 @@ void OptionsTab::initParameterCheckBoxes()
     }
 }
 
-void OptionsTab::loadArma3Executable()
+void OptionsTab::loadArma3Folder()
 {
-    QJsonValue arma3ExecutableSetting = this->settings->get(ARMA3EXECUTABLE_KEY);
-    if (arma3ExecutableSetting.isNull() || !arma3ExecutableSetting.isString()) {
+    QJsonValue arma3FolderSetting = this->settings->get(ARMA3FOLDER_KEY);
+    if (arma3FolderSetting.isNull() || !arma3FolderSetting.isString()) {
         // Detect and set Arma 3 executable
         QString detectedArma3Folder = getDetectedArma3Folder();
         if (detectedArma3Folder.isEmpty()) {
-            setArma3Executable("");
+            setArma3Folder("");
             return;
         }
 
-        QString arma3Executable = Util::joinPaths(QStringList({detectedArma3Folder, ARMA3_EXECUTABLE}));
-        setArma3Executable(arma3Executable);
+        setArma3Folder(detectedArma3Folder);
 
         // Add default workshop path
         QString workshopPath = Util::joinPaths(QStringList({detectedArma3Folder, WORKSHOP_FOLDER}));
@@ -89,8 +88,8 @@ void OptionsTab::loadArma3Executable()
         return;
     }
 
-    Q_ASSERT(arma3ExecutableSetting.isString());
-    setArma3Executable(arma3ExecutableSetting.toString());
+    Q_ASSERT(arma3FolderSetting.isString());
+    setArma3Folder(arma3FolderSetting.toString());
 }
 
 void OptionsTab::loadParameters()
@@ -156,28 +155,27 @@ void OptionsTab::loadModFolders()
     }
 }
 
-void OptionsTab::arma3ExecutableAutoDetectPushButtonClicked(bool checked)
+void OptionsTab::arma3FolderAutoDetectPushButtonClicked(bool checked)
 {
     QString detectedArma3Folder = getDetectedArma3Folder();
     if (detectedArma3Folder.isEmpty()) {
-        Util::showWarningMessage("Auto Detect Arma 3 Executable", "Fail to detect Arma 3 Executable", this->arma3ExecutableAutoDetectPushButton);
+        Util::showWarningMessage("Auto Detect Arma 3 Folder", "Fail to detect Arma 3 folder", this->arma3FolderAutoDetectPushButton);
         return;
     }
 
-    QString arma3Executable = Util::joinPaths(QStringList({detectedArma3Folder, ARMA3_EXECUTABLE}));
-    setArma3Executable(arma3Executable);
+    setArma3Folder(detectedArma3Folder);
 
     this->settings->save();
 }
 
-void OptionsTab::arma3ExecutableBrowsePushButtonClicked(bool checked)
+void OptionsTab::arma3FolderBrowsePushButtonClicked(bool checked)
 {
-    QString filename = QFileDialog::getOpenFileName(this->arma3ExecutableBrowsePushButton, "Select Arma 3 Executable", QString(), tr("Executable Files (*.exe)")).trimmed();
-    if (filename.isEmpty()) {
+    QString folder = QFileDialog::getExistingDirectory(this->arma3FolderBrowsePushButton, tr("Select Arma 3 Executable"), QString(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks).trimmed();
+    if (folder.isEmpty()) {
         return;
     }
 
-    setArma3Executable(filename);
+    setArma3Folder(folder);
     this->settings->save();
 }
 
@@ -342,12 +340,12 @@ QString OptionsTab::getDetectedArma3Folder()
     return folderName;
 }
 
-void OptionsTab::setArma3Executable(QString path)
+void OptionsTab::setArma3Folder(QString path)
 {
     QString cleanPath = Util::cleanPath(path);
-    this->arma3ExecutableLineEdit->setText(cleanPath);
-    this->arma3ExecutableLineEdit->setToolTip(cleanPath);
-    this->arma3ExecutableLineEdit->setCursorPosition(0);
+    this->arma3FolderLineEdit->setText(cleanPath);
+    this->arma3FolderLineEdit->setToolTip(cleanPath);
+    this->arma3FolderLineEdit->setCursorPosition(0);
 }
 
 bool OptionsTab::addToAdditionalParametersList(QString value)

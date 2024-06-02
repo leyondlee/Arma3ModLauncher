@@ -31,6 +31,10 @@ void ModsTab::init()
     connect(this->modGroupsExpandAllCheckBox, &QCheckBox::stateChanged, this, &ModsTab::modGroupsExpandAllCheckBoxStateChanged);
     connect(this->modGroupsSelectAllCheckBox, &QCheckBox::stateChanged, this, &ModsTab::modGroupsSelectAllCheckBoxStateChanged);
     connect(this->refreshModsPushButton, &QPushButton::clicked, this, &ModsTab::refreshPushButtonClicked);
+    connect(this->availableModsTreeWidget, &ModGroupsTreeWidget::itemCollapsed, this, &ModsTab::availableModsTreeWidgetItemCollapsed);
+    connect(this->availableModsTreeWidget, &ModGroupsTreeWidget::itemExpanded, this, &ModsTab::availableModsTreeWidgetItemExpanded);
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::itemCollapsed, this, &ModsTab::modGroupsTreeWidgetItemCollapsed);
+    connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::itemExpanded, this, &ModsTab::modGroupsTreeWidgetItemExpanded);
 
     refreshTab();
 }
@@ -248,20 +252,22 @@ void ModsTab::availableModsExpandAllCheckBoxStateChanged(int state)
 {
     if (state == Qt::Checked) {
         this->availableModsTreeWidget->expandAll();
-        return;
+    } else {
+        this->availableModsTreeWidget->collapseAll();
     }
 
-    this->availableModsTreeWidget->collapseAll();
+    this->settings->save();
 }
 
 void ModsTab::modGroupsExpandAllCheckBoxStateChanged(int state)
 {
     if (state == Qt::Checked) {
         this->modGroupsTreeWidget->expandAll();
-        return;
+    } else {
+        this->modGroupsTreeWidget->collapseAll();
     }
 
-    this->modGroupsTreeWidget->collapseAll();
+    this->settings->save();
 }
 
 void ModsTab::modGroupsSelectAllCheckBoxStateChanged(int state)
@@ -284,4 +290,24 @@ void ModsTab::modGroupsSelectAllCheckBoxStateChanged(int state)
 void ModsTab::refreshPushButtonClicked(bool checked)
 {
     refreshTab();
+}
+
+void ModsTab::availableModsTreeWidgetItemCollapsed(QTreeWidgetItem *item)
+{
+    this->settings->save();
+}
+
+void ModsTab::availableModsTreeWidgetItemExpanded(QTreeWidgetItem *item)
+{
+    this->settings->save();
+}
+
+void ModsTab::modGroupsTreeWidgetItemCollapsed(QTreeWidgetItem *item)
+{
+    this->settings->save();
+}
+
+void ModsTab::modGroupsTreeWidgetItemExpanded(QTreeWidgetItem *item)
+{
+    this->settings->save();
 }

@@ -3,7 +3,7 @@
 Settings::Settings(QMainWindow *mainWindow)
     : QObject{mainWindow}
 {
-    this->arma3ExecutableLineEdit = mainWindow->findChild<QLineEdit *>("arma3ExecutableLineEdit");
+    this->arma3FolderLineEdit = mainWindow->findChild<QLineEdit *>("arma3FolderLineEdit");
     this->parametersGroupBox = mainWindow->findChild<QGroupBox *>("parametersGroupBox");
     this->additionalParametersListWidget = mainWindow->findChild<QListWidget *>("additionalParametersListWidget");
     this->modFoldersListWidget = mainWindow->findChild<QListWidget *>("modFoldersListWidget");
@@ -20,7 +20,7 @@ void Settings::save()
     }
 
     QJsonObject jsonObject;
-    jsonObject.insert(ARMA3EXECUTABLE_KEY, this->arma3ExecutableLineEdit->text());
+    jsonObject.insert(ARMA3FOLDER_KEY, this->arma3FolderLineEdit->text());
     jsonObject.insert(PARAMETERS_KEY, getParametersJson());
     jsonObject.insert(ADDITIONALPARAMETERS_KEY, getAdditionalParametersJson());
     jsonObject.insert(MODFOLDERS_KEY, getModFoldersJson());

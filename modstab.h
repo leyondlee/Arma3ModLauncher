@@ -44,6 +44,10 @@ private:
     void modGroupsExpandAllCheckBoxStateChanged(int state);
     void modGroupsSelectAllCheckBoxStateChanged(int state);
     void refreshPushButtonClicked(bool checked);
+    void availableModsTreeWidgetItemCollapsed(QTreeWidgetItem *item);
+    void availableModsTreeWidgetItemExpanded(QTreeWidgetItem *item);
+    void modGroupsTreeWidgetItemCollapsed(QTreeWidgetItem *item);
+    void modGroupsTreeWidgetItemExpanded(QTreeWidgetItem *item);
 
 signals:
 };

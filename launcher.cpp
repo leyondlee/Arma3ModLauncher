@@ -5,7 +5,7 @@ Launcher::Launcher(QMainWindow *mainWindow)
 {
     this->launchGameToolButton = mainWindow->findChild<QToolButton *>("launchGameToolButton");
     this->modGroupsTreeWidget = mainWindow->findChild<ModGroupsTreeWidget *>("modGroupsTreeWidget");
-    this->arma3ExecutableLineEdit = mainWindow->findChild<QLineEdit *>("arma3ExecutableLineEdit");
+    this->arma3FolderLineEdit = mainWindow->findChild<QLineEdit *>("arma3FolderLineEdit");
     this->parametersGroupBox = mainWindow->findChild<QGroupBox *>("parametersGroupBox");
     this->additionalParametersListWidget = mainWindow->findChild<QListWidget *>("additionalParametersListWidget");
 
@@ -37,13 +37,15 @@ void Launcher::launchGameToolButtonClicked(bool checked)
 
 void Launcher::startGameProcess(QStringList mods)
 {
-    QString arma3Executable = this->arma3ExecutableLineEdit->text();
-    if (arma3Executable.isEmpty() || !QFileInfo::exists(arma3Executable)) {
-        Util::showWarningMessage("Launch Game", "Arma 3 executable file not found.", this->launchGameToolButton);
+    QString arma3Folder = this->arma3FolderLineEdit->text();
+    if (arma3Folder.isEmpty()) {
+        Util::showWarningMessage("Launch Game", "Invalid Arma 3 folder.", this->launchGameToolButton);
         return;
     }
 
-    if (!QFileInfo(arma3Executable).isExecutable()) {
+    QString arma3Executable = Util::joinPaths({arma3Folder, ARMA3_EXECUTABLE});
+    QFileInfo arma3ExecutableInfo(arma3Executable);
+    if (!arma3ExecutableInfo.exists() || !arma3ExecutableInfo.isExecutable()) {
         Util::showWarningMessage("Launch Game", "Invalid Arma 3 executable file.", this->launchGameToolButton);
         return;
     }
@@ -55,7 +57,7 @@ void Launcher::startGameProcess(QStringList mods)
     }
 
     QStringList parameters = getParameters();
-    for (auto parameter : parameters) {
+    for (auto &parameter : parameters) {
         arguments.append(parameter);
     }
 

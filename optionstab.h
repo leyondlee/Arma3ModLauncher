@@ -17,7 +17,6 @@
 #include "settings.h"
 
 #define ARMA3_REGISTRY "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\bohemia interactive\\arma 3"
-#define ARMA3_EXECUTABLE "arma3_x64.exe"
 #define WORKSHOP_FOLDER "!Workshop"
 
 class OptionsTab : public QObject
@@ -33,9 +32,9 @@ public:
 private:
     ModsTab *modsTab;
     Settings *settings;
-    QLineEdit *arma3ExecutableLineEdit;
-    QPushButton *arma3ExecutableAutoDetectPushButton;
-    QPushButton *arma3ExecutableBrowsePushButton;
+    QLineEdit *arma3FolderLineEdit;
+    QPushButton *arma3FolderAutoDetectPushButton;
+    QPushButton *arma3FolderBrowsePushButton;
     QGroupBox *parametersGroupBox;
     QListWidget *additionalParametersListWidget;
     QPushButton *additionalParametersAddPushButton;
@@ -53,12 +52,12 @@ private:
 
     void init();
     void initParameterCheckBoxes();
-    void loadArma3Executable();
+    void loadArma3Folder();
     void loadParameters();
     void loadAdditionalParameters();
     void loadModFolders();
-    void arma3ExecutableAutoDetectPushButtonClicked(bool checked);
-    void arma3ExecutableBrowsePushButtonClicked(bool checked);
+    void arma3FolderAutoDetectPushButtonClicked(bool checked);
+    void arma3FolderBrowsePushButtonClicked(bool checked);
     void parametersCheckBoxStateChanged(int state);
     void additionalParametersAddPushButtonClicked(bool checked);
     void additionalParametersListWidgetCustomContextMenuRequestedHandler(QPoint pos);
@@ -68,7 +67,7 @@ private:
     void modFoldersRemoveActionTriggered(bool checked);
     void modFoldersAddPushButtonClicked(bool checked);
     QString getDetectedArma3Folder();
-    void setArma3Executable(QString path);
+    void setArma3Folder(QString path);
     bool addToAdditionalParametersList(QString value);
     bool addToModFoldersList(QString text, int row = -1);
 

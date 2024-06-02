@@ -40,6 +40,7 @@ void ModsTabTreeWidget::doSort()
 
 void ModsTabTreeWidget::expandAll()
 {
+    this->blockSignals(true);
     for (int i = 0; i < this->topLevelItemCount(); i += 1) {
         QTreeWidgetItem *item = this->topLevelItem(i);
         if (item == nullptr) {
@@ -48,10 +49,12 @@ void ModsTabTreeWidget::expandAll()
 
         item->setExpanded(true);
     }
+    this->blockSignals(false);
 }
 
 void ModsTabTreeWidget::collapseAll()
 {
+    this->blockSignals(true);
     for (int i = 0; i < this->topLevelItemCount(); i += 1) {
         QTreeWidgetItem *item = this->topLevelItem(i);
         if (item == nullptr) {
@@ -60,6 +63,7 @@ void ModsTabTreeWidget::collapseAll()
 
         item->setExpanded(false);
     }
+    this->blockSignals(false);
 }
 
 bool ModsTabTreeWidget::isItemDraggable(QTreeWidgetItem *item)
