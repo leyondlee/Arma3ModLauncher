@@ -38,7 +38,7 @@ void Launcher::launchGameToolButtonClicked(bool checked)
 void Launcher::startGameProcess(QStringList mods)
 {
     QString arma3Folder = this->arma3FolderLineEdit->text();
-    if (arma3Folder.isEmpty()) {
+    if (arma3Folder.isEmpty() || !QFileInfo(arma3Folder).isDir()) {
         Util::showWarningMessage("Launch Game", "Invalid Arma 3 folder.", this->launchGameToolButton);
         return;
     }
