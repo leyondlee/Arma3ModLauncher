@@ -76,11 +76,7 @@ QStringList Launcher::getMods()
 
         for (int j = 0; j < item->childCount(); j += 1) {
             ModGroupsTreeWidgetItem *childItem = ModGroupsTreeWidgetItem::castTreeWidgetItem(item->child(j));
-            if (childItem == nullptr) {
-                continue;
-            }
-
-            if (childItem->checkState(0) != Qt::Checked) {
+            if (childItem == nullptr || childItem->checkState(0) != Qt::Checked || childItem->isMissing()) {
                 continue;
             }
 
