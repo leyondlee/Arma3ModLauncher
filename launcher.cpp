@@ -54,8 +54,13 @@ void Launcher::startGameProcess(QStringList mods)
 
     QString arma3ExecutablePath = Util::joinPaths({arma3Folder, arma3Executable});
     QFileInfo arma3ExecutablePathInfo(arma3ExecutablePath);
-    if (!arma3ExecutablePathInfo.exists() || !arma3ExecutablePathInfo.isExecutable()) {
-        Util::showWarningMessage("Launch Game", "Invalid Arma 3 executable file.", this->launchGameToolButton);
+    if (!arma3ExecutablePathInfo.exists()) {
+        Util::showWarningMessage("Launch Game", "Unable to find Arma 3 executable file.", this->launchGameToolButton);
+        return;
+    }
+
+    if (!arma3ExecutablePathInfo.isExecutable()) {
+        Util::showWarningMessage("Launch Game", "Unable to run Arma 3 executable file.", this->launchGameToolButton);
         return;
     }
 
