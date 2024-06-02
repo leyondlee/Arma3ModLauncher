@@ -16,8 +16,8 @@ ModsTab::ModsTab(QWidget *modsTab, Settings *settings)
 
 void ModsTab::refreshTab()
 {
-    loadAvailableMods();
-    loadModGroups();
+    loadAvailableModsFromSettings();
+    loadModGroupsFromSettings();
 }
 
 void ModsTab::init()
@@ -39,7 +39,7 @@ void ModsTab::init()
     refreshTab();
 }
 
-void ModsTab::loadAvailableMods()
+void ModsTab::loadAvailableModsFromSettings()
 {
     this->availableModsTreeWidget->clear();
 
@@ -112,7 +112,7 @@ void ModsTab::loadAvailableMods()
     this->availableModsTreeWidget->doSort();
 }
 
-void ModsTab::loadModGroups()
+void ModsTab::loadModGroupsFromSettings()
 {
     this->modGroupsTreeWidget->clear();
 

@@ -36,8 +36,8 @@ private:
     QPushButton *refreshModsPushButton;
 
     void init();
-    void loadAvailableMods();
-    void loadModGroups();
+    void loadAvailableModsFromSettings();
+    void loadModGroupsFromSettings();
     void modGroupsTreeChangedHandler();
     void modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem *item);
     void availableModsExpandAllCheckBoxStateChanged(int state);

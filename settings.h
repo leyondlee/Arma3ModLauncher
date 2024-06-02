@@ -28,6 +28,7 @@
 #define MODGROUPS_PATH_KEY "path"
 #define MODGROUPS_ISEXPANDED_KEY "isExpanded"
 #define MODGROUPS_MODS_KEY "mods"
+#define BATTLEYE_KEY "battleye"
 
 #define PARAMETER_CHECKBOX_PROPERTY "parameter_value"
 
@@ -48,6 +49,7 @@ private:
     QListWidget *modFoldersListWidget;
     QTreeWidget *availableModsTreeWidget;
     QTreeWidget *modGroupsTreeWidget;
+    QCheckBox *battleyeCheckBox;
     QString saveFilename;
 
     QJsonValue getParametersJson();

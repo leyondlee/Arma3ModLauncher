@@ -26,10 +26,10 @@ void OptionsTab::tabChanged()
 
 void OptionsTab::refreshTab()
 {
-    loadArma3Folder();
-    loadParameters();
-    loadAdditionalParameters();
-    loadModFolders();
+    loadArma3FolderFromSettings();
+    loadParametersFromSettings();
+    loadAdditionalParametersFromSettings();
+    loadModFoldersFromSettings();
 }
 
 void OptionsTab::init()
@@ -66,7 +66,7 @@ void OptionsTab::initParameterCheckBoxes()
     }
 }
 
-void OptionsTab::loadArma3Folder()
+void OptionsTab::loadArma3FolderFromSettings()
 {
     QJsonValue arma3FolderSetting = this->settings->get(ARMA3FOLDER_KEY);
     if (arma3FolderSetting.isNull() || !arma3FolderSetting.isString()) {
@@ -92,7 +92,7 @@ void OptionsTab::loadArma3Folder()
     setArma3Folder(arma3FolderSetting.toString());
 }
 
-void OptionsTab::loadParameters()
+void OptionsTab::loadParametersFromSettings()
 {
     QJsonValue parametersSetting = this->settings->get(PARAMETERS_KEY);
     if (parametersSetting.isNull() || !parametersSetting.isArray()) {
@@ -121,7 +121,7 @@ void OptionsTab::loadParameters()
     }
 }
 
-void OptionsTab::loadAdditionalParameters()
+void OptionsTab::loadAdditionalParametersFromSettings()
 {
     this->additionalParametersListWidget->clear();
 
@@ -140,7 +140,7 @@ void OptionsTab::loadAdditionalParameters()
     }
 }
 
-void OptionsTab::loadModFolders()
+void OptionsTab::loadModFoldersFromSettings()
 {
     this->modFoldersListWidget->clear();
 

@@ -17,6 +17,7 @@
 #include "settings.h"
 
 #define ARMA3_EXECUTABLE "arma3_x64.exe"
+#define ARMA3BATTLEYE_EXECUTABLE "arma3battleye.exe"
 
 class Launcher : public QObject
 {
@@ -25,13 +26,15 @@ class Launcher : public QObject
 public:
     explicit Launcher(QMainWindow *mainWindow);
 
+private:
+    QMainWindow *mainWindow;
     QToolButton *launchGameToolButton;
+    QCheckBox *battleyeCheckBox;
     ModGroupsTreeWidget *modGroupsTreeWidget;
     QLineEdit *arma3FolderLineEdit;
     QGroupBox *parametersGroupBox;
     QListWidget *additionalParametersListWidget;
 
-private:
     void initLaunchGameButton();
     void launchWithoutModsActionTriggered(bool checked);
     void launchGameToolButtonClicked(bool checked);

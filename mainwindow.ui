@@ -335,6 +335,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QCheckBox" name="battleyeCheckBox">
+        <property name="text">
+         <string>BattlEye</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="launchGameToolButton">
         <property name="text">
          <string>Launch Game</string>

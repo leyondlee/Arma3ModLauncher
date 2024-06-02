@@ -9,6 +9,7 @@ Settings::Settings(QMainWindow *mainWindow)
     this->modFoldersListWidget = mainWindow->findChild<QListWidget *>("modFoldersListWidget");
     this->availableModsTreeWidget = mainWindow->findChild<QTreeWidget *>("availableModsTreeWidget");
     this->modGroupsTreeWidget = mainWindow->findChild<QTreeWidget *>("modGroupsTreeWidget");
+    this->battleyeCheckBox = mainWindow->findChild<QCheckBox *>("battleyeCheckBox");
     this->saveFilename = QString("%1.json").arg(Util::joinPaths({QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), QApplication::applicationName()}));
 }
 
@@ -25,6 +26,7 @@ void Settings::save()
     jsonObject.insert(ADDITIONALPARAMETERS_KEY, getAdditionalParametersJson());
     jsonObject.insert(MODFOLDERS_KEY, getModFoldersJson());
     jsonObject.insert(MODGROUPS_KEY, getModGroupsJson());
+    jsonObject.insert(BATTLEYE_KEY, this->battleyeCheckBox->checkState() == Qt::Checked);
 
     saveFile.write(QJsonDocument(jsonObject).toJson());
 }

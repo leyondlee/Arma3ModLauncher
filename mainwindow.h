@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTabWidget>
 #include <QApplication>
+#include <QCheckBox>
 
 #include "settings.h"
 #include "modstab.h"
@@ -26,13 +27,17 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    Settings *settings;
     QTabWidget *tabWidget;
+    QCheckBox *battleyeCheckBox;
+    Settings *settings;
     ModsTab *modsTab;
     OptionsTab *optionsTab;
     Launcher *launcher;
 
+    void init();
+    void loadBattleyeFromSettings();
     void tabWidgetCurrentChangedHandler(int index);
     void applicationAboutToQuitHandler();
+    void battleyeCheckBoxStateChangedHandler(int state);
 };
 #endif // MAINWINDOW_H

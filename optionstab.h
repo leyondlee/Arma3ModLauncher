@@ -52,10 +52,10 @@ private:
 
     void init();
     void initParameterCheckBoxes();
-    void loadArma3Folder();
-    void loadParameters();
-    void loadAdditionalParameters();
-    void loadModFolders();
+    void loadArma3FolderFromSettings();
+    void loadParametersFromSettings();
+    void loadAdditionalParametersFromSettings();
+    void loadModFoldersFromSettings();
     void arma3FolderAutoDetectPushButtonClicked(bool checked);
     void arma3FolderBrowsePushButtonClicked(bool checked);
     void parametersCheckBoxStateChanged(int state);
