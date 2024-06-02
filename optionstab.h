@@ -34,6 +34,7 @@ private:
     ModsTab *modsTab;
     Settings *settings;
     QLineEdit *arma3ExecutableLineEdit;
+    QPushButton *arma3ExecutableAutoDetectPushButton;
     QPushButton *arma3ExecutableBrowsePushButton;
     QGroupBox *parametersGroupBox;
     QListWidget *additionalParametersListWidget;
@@ -56,6 +57,7 @@ private:
     void loadParameters();
     void loadAdditionalParameters();
     void loadModFolders();
+    void arma3ExecutableAutoDetectPushButtonClicked(bool checked);
     void arma3ExecutableBrowsePushButtonClicked(bool checked);
     void parametersCheckBoxStateChanged(int state);
     void additionalParametersAddPushButtonClicked(bool checked);

@@ -6,6 +6,7 @@ OptionsTab::OptionsTab(QWidget *optionsTab, ModsTab *modsTab, Settings *settings
     this->modsTab = modsTab;
     this->settings = settings;
     this->arma3ExecutableLineEdit = optionsTab->findChild<QLineEdit *>("arma3ExecutableLineEdit");
+    this->arma3ExecutableAutoDetectPushButton = optionsTab->findChild<QPushButton *>("arma3ExecutableAutoDetectPushButton");
     this->arma3ExecutableBrowsePushButton = optionsTab->findChild<QPushButton *>("arma3ExecutableBrowsePushButton");
     this->parametersGroupBox = optionsTab->findChild<QGroupBox *>("parametersGroupBox");
     this->additionalParametersListWidget = optionsTab->findChild<QListWidget *>("additionalParametersListWidget");
@@ -40,6 +41,7 @@ void OptionsTab::init()
     this->additionalParametersListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     this->modFoldersListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
+    connect(this->arma3ExecutableAutoDetectPushButton, &QPushButton::clicked, this, &OptionsTab::arma3ExecutableAutoDetectPushButtonClicked);
     connect(this->arma3ExecutableBrowsePushButton, &QPushButton::clicked, this, &OptionsTab::arma3ExecutableBrowsePushButtonClicked);
     connect(this->additionalParametersListWidget, &QListWidget::customContextMenuRequested, this, &OptionsTab::additionalParametersListWidgetCustomContextMenuRequestedHandler);
     connect(this->additionalParametersAddPushButton, &QPushButton::clicked, this, &OptionsTab::additionalParametersAddPushButtonClicked);
@@ -152,6 +154,20 @@ void OptionsTab::loadModFolders()
     for (auto &key : jsonObject.keys()) {
         addToModFoldersList(key);
     }
+}
+
+void OptionsTab::arma3ExecutableAutoDetectPushButtonClicked(bool checked)
+{
+    QString detectedArma3Folder = getDetectedArma3Folder();
+    if (detectedArma3Folder.isEmpty()) {
+        Util::showWarningMessage("Auto Detect Arma 3 Executable", "Fail to detect Arma 3 Executable", this->arma3ExecutableAutoDetectPushButton);
+        return;
+    }
+
+    QString arma3Executable = Util::joinPaths(QStringList({detectedArma3Folder, ARMA3_EXECUTABLE}));
+    setArma3Executable(arma3Executable);
+
+    this->settings->save();
 }
 
 void OptionsTab::arma3ExecutableBrowsePushButtonClicked(bool checked)

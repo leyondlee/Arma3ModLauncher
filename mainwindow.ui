@@ -152,6 +152,13 @@
             <widget class="QLineEdit" name="arma3ExecutableLineEdit"/>
            </item>
            <item>
+            <widget class="QPushButton" name="arma3ExecutableAutoDetectPushButton">
+             <property name="text">
+              <string>Auto Detect</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="arma3ExecutableBrowsePushButton">
              <property name="text">
               <string>Browse</string>
