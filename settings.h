@@ -52,6 +52,7 @@ private:
     QCheckBox *battleyeCheckBox;
     QString saveFilename;
 
+    void init();
     QJsonValue getParametersJson();
     QJsonValue getAdditionalParametersJson();
     QJsonValue getModFoldersJson();

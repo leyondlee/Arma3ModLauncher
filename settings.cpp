@@ -11,6 +11,8 @@ Settings::Settings(QMainWindow *mainWindow)
     this->modGroupsTreeWidget = mainWindow->findChild<QTreeWidget *>("modGroupsTreeWidget");
     this->battleyeCheckBox = mainWindow->findChild<QCheckBox *>("battleyeCheckBox");
     this->saveFilename = QString("%1.json").arg(Util::joinPaths({QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), QApplication::applicationName()}));
+
+    init();
 }
 
 void Settings::save()
@@ -54,6 +56,15 @@ QJsonValue Settings::get(QString key)
     }
 
     return jsonObject.value(key);
+}
+
+void Settings::init()
+{
+    QFileInfo saveFileInfo(this->saveFilename);
+    QDir dir = saveFileInfo.dir();
+    if (!dir.exists()) {
+        QDir().mkpath(dir.absolutePath());
+    }
 }
 
 QJsonValue Settings::getParametersJson()
