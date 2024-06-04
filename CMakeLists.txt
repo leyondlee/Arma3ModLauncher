@@ -19,6 +19,8 @@ set(PROJECT_SOURCES
         mainwindow.ui
 )
 
+set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/Arma3ModLauncher.rc")
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(Arma3ModLauncher
         MANUAL_FINALIZATION
@@ -27,13 +29,14 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         util.h util.cpp
         settings.h settings.cpp
         modstab.h modstab.cpp
-
         modgroupstreewidgetitem.h modgroupstreewidgetitem.cpp
         modgroupstreewidget.h modgroupstreewidget.cpp
         availablemodstreewidget.h availablemodstreewidget.cpp
         modstabtreewidget.h modstabtreewidget.cpp
         modstabdragdropdata.h modstabdragdropdata.cpp
         launcher.h launcher.cpp
+        ${app_icon_resource_windows}
+        Arma3ModLauncher.rc
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Arma3ModLauncher APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
