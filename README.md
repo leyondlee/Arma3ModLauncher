@@ -5,7 +5,8 @@ Just another Arma 3 Launcher.
 App save file is stored at `%appdata%\Arma3ModLauncher`.
 
 ### Credits
-* See [credits.txt](credits.txt)
+* Qt - https://www.qt.io/
+* Flaticon - https://www.flaticon.com/
 
 ### Images
 ![image1](images/image1.jpg)
