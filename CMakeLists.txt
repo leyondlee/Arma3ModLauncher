@@ -38,7 +38,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${app_icon_resource_windows}
         Arma3ModLauncher.rc
         README.md
-        images/image1.jpg images/image2.jpg .gitignore credits.txt icon.ico
+        images/image1.jpg images/image2.jpg .gitignore  icon.ico
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Arma3ModLauncher APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
