@@ -70,8 +70,6 @@ private:
     void setArma3Folder(QString path);
     bool addToAdditionalParametersList(QString value);
     bool addToModFoldersList(QString text, int row = -1);
-
-signals:
 };
 
 #endif // OPTIONSTAB_H

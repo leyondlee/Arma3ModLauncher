@@ -11,9 +11,6 @@ class AvailableModsTreeWidget : public ModsTabTreeWidget
 
 public:
     explicit AvailableModsTreeWidget(QWidget *parent = nullptr);
-
-private:
-    QPoint dragStartPosition;
 };
 
 #endif // AVAILABLEMODSTREEWIDGET_H

@@ -21,8 +21,6 @@ public:
 
 private:
     QJsonObject jsonObject;
-
-signals:
 };
 
 #endif // MODSTABDRAGDROPDATA_H

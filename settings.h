@@ -57,8 +57,6 @@ private:
     QJsonValue getAdditionalParametersJson();
     QJsonValue getModFoldersJson();
     QJsonValue getModGroupsJson();
-
-signals:
 };
 
 #endif // SETTINGS_H

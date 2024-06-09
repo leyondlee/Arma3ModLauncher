@@ -48,8 +48,6 @@ private:
     void availableModsTreeWidgetItemExpanded(QTreeWidgetItem *item);
     void modGroupsTreeWidgetItemCollapsed(QTreeWidgetItem *item);
     void modGroupsTreeWidgetItemExpanded(QTreeWidgetItem *item);
-
-signals:
 };
 
 #endif // MODSTAB_H

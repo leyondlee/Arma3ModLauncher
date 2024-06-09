@@ -41,8 +41,6 @@ private:
     void startGameProcess(QStringList mods = QStringList());
     QStringList getMods();
     QStringList getParameters();
-
-signals:
 };
 
 #endif // LAUNCHER_H

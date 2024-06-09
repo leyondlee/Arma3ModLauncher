@@ -60,7 +60,10 @@ void OptionsTab::initParameterCheckBoxes()
         }
 
         checkBox->setCheckState(Qt::Unchecked);
-        checkBox->setProperty(PARAMETER_CHECKBOX_PROPERTY, i.key());
+
+        QString parameterValue = i.key();
+        checkBox->setToolTip(parameterValue);
+        checkBox->setProperty(PARAMETER_CHECKBOX_PROPERTY, parameterValue);
 
         connect(checkBox, &QCheckBox::stateChanged, this, &OptionsTab::parametersCheckBoxStateChanged);
     }
