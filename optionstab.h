@@ -58,7 +58,7 @@ private:
     void loadModFoldersFromSettings();
     void arma3FolderAutoDetectPushButtonClicked(bool checked);
     void arma3FolderBrowsePushButtonClicked(bool checked);
-    void parametersCheckBoxStateChanged(int state);
+    void parametersCheckBoxStateChanged(Qt::CheckState state);
     void additionalParametersAddPushButtonClicked(bool checked);
     void additionalParametersListWidgetCustomContextMenuRequestedHandler(QPoint pos);
     void additionalParametersEditActionTriggered(bool checked);

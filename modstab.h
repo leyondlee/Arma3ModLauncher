@@ -40,9 +40,9 @@ private:
     void loadModGroupsFromSettings();
     void modGroupsTreeChangedHandler();
     void modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem *item);
-    void availableModsExpandAllCheckBoxStateChanged(int state);
-    void modGroupsExpandAllCheckBoxStateChanged(int state);
-    void modGroupsSelectAllCheckBoxStateChanged(int state);
+    void availableModsExpandAllCheckBoxStateChanged(Qt::CheckState state);
+    void modGroupsExpandAllCheckBoxStateChanged(Qt::CheckState state);
+    void modGroupsSelectAllCheckBoxStateChanged(Qt::CheckState state);
     void refreshPushButtonClicked(bool checked);
     void availableModsTreeWidgetItemCollapsed(QTreeWidgetItem *item);
     void availableModsTreeWidgetItemExpanded(QTreeWidgetItem *item);

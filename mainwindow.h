@@ -38,6 +38,6 @@ private:
     void loadBattleyeFromSettings();
     void tabWidgetCurrentChangedHandler(int index);
     void applicationAboutToQuitHandler();
-    void battleyeCheckBoxStateChangedHandler(int state);
+    void battleyeCheckBoxStateChangedHandler(Qt::CheckState state);
 };
 #endif // MAINWINDOW_H

@@ -29,7 +29,7 @@ void MainWindow::init()
 
     connect(this->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabWidgetCurrentChangedHandler);
     connect(QApplication::instance(), &QApplication::aboutToQuit, this, &MainWindow::applicationAboutToQuitHandler);
-    connect(this->battleyeCheckBox, &QCheckBox::stateChanged, this, &MainWindow::battleyeCheckBoxStateChangedHandler);
+    connect(this->battleyeCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::battleyeCheckBoxStateChangedHandler);
 
     loadBattleyeFromSettings();
 }
@@ -68,7 +68,7 @@ void MainWindow::applicationAboutToQuitHandler()
     this->settings->save();
 }
 
-void MainWindow::battleyeCheckBoxStateChangedHandler(int state)
+void MainWindow::battleyeCheckBoxStateChangedHandler(Qt::CheckState state)
 {
     this->settings->save();
 }

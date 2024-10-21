@@ -65,7 +65,7 @@ void OptionsTab::initParameterCheckBoxes()
         checkBox->setToolTip(parameterValue);
         checkBox->setProperty(PARAMETER_CHECKBOX_PROPERTY, parameterValue);
 
-        connect(checkBox, &QCheckBox::stateChanged, this, &OptionsTab::parametersCheckBoxStateChanged);
+        connect(checkBox, &QCheckBox::checkStateChanged, this, &OptionsTab::parametersCheckBoxStateChanged);
     }
 }
 
@@ -182,7 +182,7 @@ void OptionsTab::arma3FolderBrowsePushButtonClicked(bool checked)
     this->settings->save();
 }
 
-void OptionsTab::parametersCheckBoxStateChanged(int state)
+void OptionsTab::parametersCheckBoxStateChanged(Qt::CheckState state)
 {
     this->settings->save();
 }

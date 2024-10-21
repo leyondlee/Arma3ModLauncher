@@ -27,9 +27,9 @@ void ModsTab::init()
 
     connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::treeChangedSignal, this, &ModsTab::modGroupsTreeChangedHandler);
     connect(this->modGroupsTreeWidget, &ModGroupsTreeWidget::itemCheckStateChangedSignal, this, &ModsTab::modGroupsTreeItemCheckStateChangedHandler);
-    connect(this->availableModsExpandAllCheckBox, &QCheckBox::stateChanged, this, &ModsTab::availableModsExpandAllCheckBoxStateChanged);
-    connect(this->modGroupsExpandAllCheckBox, &QCheckBox::stateChanged, this, &ModsTab::modGroupsExpandAllCheckBoxStateChanged);
-    connect(this->modGroupsSelectAllCheckBox, &QCheckBox::stateChanged, this, &ModsTab::modGroupsSelectAllCheckBoxStateChanged);
+    connect(this->availableModsExpandAllCheckBox, &QCheckBox::checkStateChanged, this, &ModsTab::availableModsExpandAllCheckBoxStateChanged);
+    connect(this->modGroupsExpandAllCheckBox, &QCheckBox::checkStateChanged, this, &ModsTab::modGroupsExpandAllCheckBoxStateChanged);
+    connect(this->modGroupsSelectAllCheckBox, &QCheckBox::checkStateChanged, this, &ModsTab::modGroupsSelectAllCheckBoxStateChanged);
     connect(this->refreshModsPushButton, &QPushButton::clicked, this, &ModsTab::refreshPushButtonClicked);
     connect(this->availableModsTreeWidget, &ModGroupsTreeWidget::itemCollapsed, this, &ModsTab::availableModsTreeWidgetItemCollapsed);
     connect(this->availableModsTreeWidget, &ModGroupsTreeWidget::itemExpanded, this, &ModsTab::availableModsTreeWidgetItemExpanded);
@@ -248,7 +248,7 @@ void ModsTab::modGroupsTreeItemCheckStateChangedHandler(ModGroupsTreeWidgetItem 
     this->settings->save();
 }
 
-void ModsTab::availableModsExpandAllCheckBoxStateChanged(int state)
+void ModsTab::availableModsExpandAllCheckBoxStateChanged(Qt::CheckState state)
 {
     if (state == Qt::Checked) {
         this->availableModsTreeWidget->expandAll();
@@ -259,7 +259,7 @@ void ModsTab::availableModsExpandAllCheckBoxStateChanged(int state)
     this->settings->save();
 }
 
-void ModsTab::modGroupsExpandAllCheckBoxStateChanged(int state)
+void ModsTab::modGroupsExpandAllCheckBoxStateChanged(Qt::CheckState state)
 {
     if (state == Qt::Checked) {
         this->modGroupsTreeWidget->expandAll();
@@ -270,7 +270,7 @@ void ModsTab::modGroupsExpandAllCheckBoxStateChanged(int state)
     this->settings->save();
 }
 
-void ModsTab::modGroupsSelectAllCheckBoxStateChanged(int state)
+void ModsTab::modGroupsSelectAllCheckBoxStateChanged(Qt::CheckState state)
 {
     this->modGroupsTreeWidget->blockSignals(true);
     QTreeWidgetItemIterator it(this->modGroupsTreeWidget);
